@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.SimpleRobot;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class RobotTemplate extends SimpleRobot {
+public class Team3373 extends SimpleRobot {
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
