@@ -11,5 +11,9 @@ package edu.wpi.first.wpilibj.templates;
  * @author Jamie
  */
 public class NewMath {
+    int test;
+    public double toTheThird(double input){
+        return input*input*input;
+    }
     
 }
