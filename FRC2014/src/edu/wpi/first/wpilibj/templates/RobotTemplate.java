@@ -9,6 +9,7 @@ package edu.wpi.first.wpilibj.templates;
 
 
 import edu.wpi.first.wpilibj.SimpleRobot;
+import edu.wpi.first.wpilibj.templates.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -17,10 +18,12 @@ import edu.wpi.first.wpilibj.SimpleRobot;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class Team3373 extends SimpleRobot {
+public class RobotTemplate extends SimpleRobot {
     /**
      * This function is called once each time the robot enters autonomous mode.
      */
+    
+    Shooter shooter = new Shooter();
     public void autonomous() {
         
     }
@@ -29,7 +32,14 @@ public class Team3373 extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-
+        while (isEnabled()){
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            shooter.runTestMotor(.25);
+        }
     }
     
     /**

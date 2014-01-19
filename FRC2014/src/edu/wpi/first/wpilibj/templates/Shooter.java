@@ -5,11 +5,22 @@
  */
 
 package edu.wpi.first.wpilibj.templates;
-
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.templates.Diagnostics;
+import edu.wpi.first.wpilibj.smartdashboard.*;
 /**
  *
  * @author Jamie
  */
 public class Shooter {
-    
+    Talon testTalon = new Talon(5);
+    Diagnostics diag = Diagnostics.getInstance();
+    public void runTestMotor(double speed){
+        diag.showMotorSpeed(speed);
+        speed = SmartDashboard.getNumber("Speed", 0);
+        SmartDashboard.putNumber("Speed", speed);
+        System.out.println(speed);
+        testTalon.set(speed);
+    }
 }
