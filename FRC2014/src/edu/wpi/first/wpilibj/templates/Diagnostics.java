@@ -17,11 +17,17 @@ public class Diagnostics { //provides diagnostic methods to print out problems
         return instance;
     }
     
-    public void showPSI(){
-        SmartDashboard.getBoolean(null);
+    public String showPSI(double psi, String meterID){
+        SmartDashboard.putNumber("PSI " + meterID, psi);
+        return ("PSI " + meterID);
     }
     
-    public void showMotorSpeed(double motorSpeed){
-        //SmartDashboard.putNumber("MotorSpeed", motorSpeed);
+    public String showMotorSpeed(double motorSpeed, String motorID){
+        SmartDashboard.putNumber("Motor " + "" + motorID + "" + " Speed", motorSpeed);
+        return ("Motor " + "" + motorID + "" + " Speed");
+    }
+    
+    public void showPotMeasure(double potMeasure, String potID){
+        SmartDashboard.putNumber("Pot " + potID + "Measure", potMeasure);
     }
 }
