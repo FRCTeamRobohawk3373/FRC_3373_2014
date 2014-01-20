@@ -29,7 +29,8 @@ public class Drive {
      * @param driveLY Y axis of the left joystick on the drive controller
      */
     public void drive(double driveLX, double driveRX, double driveLY){
-        mechanum.mecanumDrive_Cartesian(math.pow(deadband.zero(driveLX, .1), 3)*speed,
+        mechanum.mecanumDrive_Cartesian(
+                math.pow(deadband.zero(driveLX, .1), 3)*speed,
                 math.pow(deadband.zero(driveRX, .1), 3)*speed,
                 math.pow(deadband.zero(driveLY, .1), 3)*speed, 0);
     }

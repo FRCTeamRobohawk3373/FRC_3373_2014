@@ -24,6 +24,17 @@ public class RobotTemplate extends SimpleRobot {
      */
     
     Shooter shooter = new Shooter();
+    SuperJoystick driveStick = new SuperJoystick(1);
+    SuperJoystick shootStick = new SuperJoystick(2);
+    Drive drive = Drive.getInstance();
+    
+    int LX = 1;
+    int LY = 2;
+    int Triggers = 3;
+    int RX = 4;
+    int RY = 5;
+    int DP = 6;
+   
     public void autonomous() {
         
     }
@@ -39,6 +50,7 @@ public class RobotTemplate extends SimpleRobot {
                 ex.printStackTrace();
             }
             shooter.runTestMotor(.25);
+            drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
         }
     }
     

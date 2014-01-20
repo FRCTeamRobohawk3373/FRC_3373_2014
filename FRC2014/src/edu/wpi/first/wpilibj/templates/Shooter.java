@@ -17,9 +17,8 @@ public class Shooter {
     Talon testTalon = new Talon(5);
     Diagnostics diag = Diagnostics.getInstance();
     public void runTestMotor(double speed){
-        diag.showMotorSpeed(speed);
-        speed = SmartDashboard.getNumber("Speed", 0);
-        SmartDashboard.putNumber("Speed", speed);
+        diag.showMotorSpeed(speed, "1");
+        speed = SmartDashboard.getNumber(diag.showMotorSpeed(speed, "1"));
         System.out.println(speed);
         testTalon.set(speed);
     }

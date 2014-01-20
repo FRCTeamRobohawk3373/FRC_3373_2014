@@ -28,6 +28,6 @@ public class Diagnostics { //provides diagnostic methods to print out problems
     }
     
     public void showPotMeasure(double potMeasure, String potID){
-        SmartDashboard.putNumber("Pot " + potID + "Measure", potMeasure);
+        SmartDashboard.putNumber("Pot " + potID + " Measure", potMeasure);
     }
 }
