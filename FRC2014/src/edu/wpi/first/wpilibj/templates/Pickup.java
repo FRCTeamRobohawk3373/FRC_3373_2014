@@ -23,7 +23,11 @@ public class Pickup {
     double maxVoltage = 5;
     final double angleTolerance = 3;
     double diagSpeed = .5;
-    
+    /**
+     * Use this method to control the pickup arm. Threaded function
+     * @param pos target position for the arm to go to
+     * @param speed speed the arm should move at
+     */
     public void goToPos(final double pos, final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -37,11 +41,21 @@ public class Pickup {
         thread.start();
     }
     
+    /**
+     * Method to convert potentiometer voltage into degrees
+     * @return returns degrees
+     */
+    
     public double getPickupPos(){
         double angle = pickupPot.getVoltage() * (maxAngle/maxVoltage);
         return angle;
     }
-    
+    /**
+     * Method to be used in the threaded goto method
+     * @param target target angle
+     * @param currentPos current angle
+     * @param speed motor speed
+     */
     public void goToAngle(double target, double currentPos, double speed){
         if (target < currentPos){
             actuateTalon.set(speed);
@@ -51,7 +65,12 @@ public class Pickup {
             actuateTalon.set(0);
         }
     }
-    
+    /***
+     * 
+     * @param up button press telling the arm to move up
+     * @param down button press telling the arm to move down
+     * @return returns arm position in degrees 
+     */
     public double angleDiag(boolean up, boolean down){
         if (up && !down){
             actuateTalon.set(diagSpeed);
