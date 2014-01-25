@@ -20,4 +20,14 @@ public class Deadband {
         }
         
     }
+    
+    public boolean zero(double input, double range, double a){
+        
+        if(input > -range && input < range){
+            return false;
+        } else {
+            return true;
+        }
+        
+    }
 }
