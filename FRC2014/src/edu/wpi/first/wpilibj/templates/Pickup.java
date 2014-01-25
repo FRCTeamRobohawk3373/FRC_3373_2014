@@ -66,7 +66,7 @@ public class Pickup {
         }
     }
     /***
-     * 
+     * Diagnostic method to get baseline measurements
      * @param up button press telling the arm to move up
      * @param down button press telling the arm to move down
      * @return returns arm position in degrees 
