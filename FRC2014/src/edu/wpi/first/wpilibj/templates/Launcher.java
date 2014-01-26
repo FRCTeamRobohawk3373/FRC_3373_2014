@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
 public class Launcher {
 
     DoubleSolenoid lockingSolenoid = new DoubleSolenoid(1, 2);//currently in solenoid port 1 for testing
-    Solenoid pressureSolenoid = new Solenoid(3);
+    Solenoid pressureSolenoid = new Solenoid(8);
     Solenoid exhaustSolenoid = new Solenoid(4);
     Solenoid testLockingSolenoid = new Solenoid(5);
 
@@ -84,6 +84,7 @@ public class Launcher {
                     ex.printStackTrace();
                 }
                 pressureSolenoid.set(false);
+                testLockingSolenoid.set(false);
                 isShootThreadRunning = false;
                 System.out.println(isShootThreadRunning);
             }
