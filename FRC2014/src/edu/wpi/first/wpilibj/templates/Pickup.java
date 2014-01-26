@@ -50,6 +50,7 @@ public class Pickup {
         double angle = pickupPot.getVoltage() * (maxAngle/maxVoltage);
         return angle;
     }
+    
     /**
      * Method to be used in the threaded goto method
      * @param target target angle
