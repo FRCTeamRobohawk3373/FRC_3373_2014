@@ -47,6 +47,10 @@ public class RobotTemplate extends SimpleRobot {
      */
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
+        if (isDisabled() && isOperatorControl()){
+            
+        }
+        
         while (isEnabled() && isOperatorControl()) {
             if (!socket.isConnected){
                 System.out.println("Trying to connect");
@@ -62,13 +66,14 @@ public class RobotTemplate extends SimpleRobot {
                 System.out.println("A Presser");
                 launcher.shootThread();
             }
-
+            if (driveStick.isBPushed()){     
                 try {
-                    socket.sendString();
-                } catch (IOException ex) {
-                    System.out.println("Sending failed");
-                    ex.printStackTrace();
-                }
+                        socket.sendString("Test \n");
+                    } catch (IOException ex) {
+                        System.out.println("Sending failed");
+                        ex.printStackTrace();
+                    }
+            }
             
             try {
                 System.out.print(socket.receiveString());

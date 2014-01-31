@@ -45,8 +45,12 @@ public class PiSocket {
 
     }
 
-    public void sendString() throws IOException {
-        os.writeChars("Test");
+    public void sendString(String message) throws IOException{
+        try {
+            os.writeChars(message);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 
     }
 
