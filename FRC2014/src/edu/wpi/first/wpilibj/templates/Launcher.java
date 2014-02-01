@@ -19,9 +19,9 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
  */
 public class Launcher {
 
-    DoubleSolenoid lockingSolenoid = new DoubleSolenoid(1, 2);//currently in solenoid port 1 for testing
-    Solenoid pressureSolenoid = new Solenoid(3);
-    Solenoid exhaustSolenoid = new Solenoid(4);
+    DoubleSolenoid lockingSolenoid = new DoubleSolenoid(3, 1, 2);//currently in solenoid port 1 for testing
+    Solenoid pressureSolenoid = new Solenoid(3, 3);
+    Solenoid exhaustSolenoid = new Solenoid(3, 8);
     Solenoid testLockingSolenoid = new Solenoid(5);
 
     DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing
@@ -84,6 +84,7 @@ public class Launcher {
                     ex.printStackTrace();
                 }
                 pressureSolenoid.set(false);
+                testLockingSolenoid.set(false);
                 isShootThreadRunning = false;
                 System.out.println(isShootThreadRunning);
             }

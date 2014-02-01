@@ -33,6 +33,7 @@ public class Drive {
                 math.pow(deadband.zero(driveLX, .1), 3)*speed,
                 math.pow(deadband.zero(driveRX, .1), 3)*speed,
                 math.pow(deadband.zero(driveLY, .1), 3)*speed, 0);
+        mechanum.setSafetyEnabled(false);
     }
     
     public void orientationSwitcher(boolean isTrueFrontRequested){
