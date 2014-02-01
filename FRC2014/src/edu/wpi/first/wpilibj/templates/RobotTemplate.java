@@ -64,7 +64,7 @@ public class RobotTemplate extends SimpleRobot {
             drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
             if (driveStick.isAPushed()) {
                 System.out.println("A Presser");
-                launcher.shootThread();
+                //launcher.shootThread();
             }
             if (driveStick.isBPushed()){     
                 try {
@@ -89,6 +89,23 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters test mode.
      */
     public void test() {
-
+        /********************
+        * Shooter Test Code *
+        ********************/
+        if(driveStick.isAPushed()){
+            launcher.addPressure();
+        }
+        if(driveStick.isBPushed()){
+            launcher.exhaustPressure();
+        }
+        if(driveStick.isXPushed()){
+            launcher.lockShootingPistons();
+        }
+        if(driveStick.isYPushed()){
+            launcher.unlockShootingPistons();//aka fire
+        }
+        if(driveStick.isBackPushed()){
+            launcher.retractShootingPistons();//aka get ready to shoot again
+        }
     }
 }
