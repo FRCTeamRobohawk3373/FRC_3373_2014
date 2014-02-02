@@ -29,14 +29,18 @@ public class Launcher {
     
     DoubleSolenoid retractingSolenoid = new DoubleSolenoid(1, 3, 4);
     
-    DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing
+    DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing, when true the piston is home and ready for launching algorithm
 
-    AnalogChannel pressureSensor = new AnalogChannel(1);
+    AnalogChannel pressureSensor;
 
     boolean isReadyToShoot;
     double  currentPressure;
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
+
+    public Launcher() {
+        this.pressureSensor = new AnalogChannel(1);
+    }
 
     public void unlockShootingPistons() {
         lockingSolenoids.set(DoubleSolenoid.Value.kForward);
@@ -66,7 +70,15 @@ public class Launcher {
         exhaustSolenoid.set(false);//exhaust before returning catapult home
         retractingSolenoid.set(DoubleSolenoid.Value.kForward);    
     }
-
+    public void returnCatapultToHome(){
+        final Thread thread = new Thread(new Runnable() {
+            public void run() {
+                while(!isPistonHome.get()){
+                    retractShootingPistons();
+                }
+            }
+        });
+    }
     public boolean chargeShootingPistons(final double targetPressure) {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
