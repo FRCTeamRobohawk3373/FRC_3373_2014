@@ -92,10 +92,10 @@ public class RobotTemplate extends SimpleRobot {
         /********************
         * Shooter Test Code *
         ********************/
-        if(driveStick.isAPushed()){
+        if(driveStick.isAHeld()){
             launcher.addPressure();
         }
-        if(driveStick.isBPushed()){
+        if(driveStick.isBHeld()){
             launcher.exhaustPressure();
         }
         if(driveStick.isXPushed()){
