@@ -19,9 +19,9 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
  */
 public class Launcher {
 
-    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(1, 5, 6);//currently in solenoid port 1 for testing
+    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(1, 1, 8);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
     
-    Solenoid pressureSolenoidR = new Solenoid(1, 1);
+    Solenoid pressureSolenoidR = new Solenoid(1, 5);//was port one TODO: change back to port one
     Solenoid pressureSolenoidL = new Solenoid(1, 2);
     Solenoid exhaustSolenoid = new Solenoid(1, 7);//defaults to exhaust
     
@@ -47,9 +47,12 @@ public class Launcher {
     }
 
     public void lockShootingPistons() {
-        if (isPistonHome.get()) {
+        //if (isPistonHome.get()) {
             lockingSolenoids.set(DoubleSolenoid.Value.kReverse);
-        }
+        //}
+    }
+    public void doNothingLockingPistons(){
+        lockingSolenoids.set(DoubleSolenoid.Value.kOff);
     }
     public void addPressure(){
         exhaustSolenoid.set(true);//close exhaust before adding pressure        
