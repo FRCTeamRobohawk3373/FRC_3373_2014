@@ -23,7 +23,7 @@ public class Launcher {
     
     Solenoid pressureSolenoidR = new Solenoid(1, 1);
     Solenoid pressureSolenoidL = new Solenoid(1, 2);
-    Solenoid exhaustSolenoid = new Solenoid(2, 1);//defaults to exhaust
+    Solenoid exhaustSolenoid = new Solenoid(1, 7);//defaults to exhaust
     
     //Solenoid testLockingSolenoid = new Solenoid(8);//do we need this?
     
@@ -39,23 +39,32 @@ public class Launcher {
     boolean isShootThreadRunning = false;
 
     public void unlockShootingPistons() {
-        lockingSolenoids.set(DoubleSolenoid.Value.kForward); //false is allowing the pisotn to retract releasing the shooting piston
+        lockingSolenoids.set(DoubleSolenoid.Value.kForward);
     }
 
     public void lockShootingPistons() {
         if (isPistonHome.get()) {
-            lockingSolenoids.set(DoubleSolenoid.Value.kReverse); //true is allowing the piston to extend locking the shooting pistions
+            lockingSolenoids.set(DoubleSolenoid.Value.kReverse);
         }
     }
     public void addPressure(){
+        exhaustSolenoid.set(true);//close exhaust before adding pressure        
         pressureSolenoidR.set(true);
         pressureSolenoidL.set(true);
     }
     public void exhaustPressure(){
+        pressureSolenoidR.set(false);//don't add pressure while we are exhausting pressure
+        pressureSolenoidL.set(false);
         exhaustSolenoid.set(true);
     }
+    public void holdPressure(){
+        pressureSolenoidR.set(false);
+        pressureSolenoidL.set(false);//don't add pressure
+        exhaustSolenoid.set(true);//don't exhaust pressure
+    }
     public void retractShootingPistons(){
-        retractingSolenoid.set(DoubleSolenoid.Value.kForward);
+        exhaustSolenoid.set(false);//exhaust before returning catapult home
+        retractingSolenoid.set(DoubleSolenoid.Value.kForward);    
     }
 
     public boolean chargeShootingPistons(final double targetPressure) {
