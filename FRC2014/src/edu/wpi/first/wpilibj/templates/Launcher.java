@@ -19,15 +19,15 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
  */
 public class Launcher {
 
-    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(1, 1, 8);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
+    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 5, 6);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
     
-    Solenoid pressureSolenoidR = new Solenoid(1, 5);//was port one TODO: change back to port one
-    Solenoid pressureSolenoidL = new Solenoid(1, 2);
-    Solenoid exhaustSolenoid = new Solenoid(1, 7);//defaults to exhaust
+    Solenoid pressureSolenoidR = new Solenoid(2, 8);//
+    Solenoid pressureSolenoidL = new Solenoid(2, 1);
+    Solenoid exhaustSolenoid = new Solenoid(2, 4);//defaults to exhaust
     
     //Solenoid testLockingSolenoid = new Solenoid(8);//do we need this?
     
-    DoubleSolenoid retractingSolenoid = new DoubleSolenoid(1, 3, 4);
+    Solenoid retractingSolenoid = new Solenoid(2, 3);
     
     DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing, when true the piston is home and ready for launching algorithm
 
@@ -71,7 +71,7 @@ public class Launcher {
     }
     public void retractShootingPistons(){
         exhaustSolenoid.set(false);//exhaust before returning catapult home
-        retractingSolenoid.set(DoubleSolenoid.Value.kForward);    
+        retractingSolenoid.set(true);    
     }
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {
