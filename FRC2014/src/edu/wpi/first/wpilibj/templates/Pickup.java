@@ -8,6 +8,8 @@ package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.Talon;
 
 /**
@@ -19,10 +21,13 @@ public class Pickup {
     Talon actuateTalon = new Talon(1);
     Deadband deadband = new Deadband();
     
+    DoubleSolenoid firstSolenoid = new DoubleSolenoid(1, 5);
+    
     double maxAngle = 120;
     double maxVoltage = 5;
     final double angleTolerance = 3;
     double diagSpeed = .5;
+    static boolean isAtPosition = false;
     /**
      * Use this method to control the pickup arm. Threaded function
      * @param pos target position for the arm to go to
@@ -31,11 +36,13 @@ public class Pickup {
     public void goToPos(final double pos, final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
+                isAtPosition = false;
                 while (deadband.zero(Math.abs(getPickupPos() - pos), angleTolerance, 1)){
                     if (deadband.zero(Math.abs(getPickupPos() - pos), angleTolerance, 1)){
                         goToAngle(pos, getPickupPos(), speed);
                     }
                 }
+                isAtPosition = true;
             }
         });
         thread.start();
@@ -82,4 +89,17 @@ public class Pickup {
         }
         return getPickupPos();
     }
+    
+    public void openPickupArm(){
+        firstSolenoid.set(Value.kForward);
+    }
+    
+    public void closePickupArms(){
+        firstSolenoid.set(Value.kReverse);
+    }
+    
+    public void turnOffPickupSolenoid(){
+        firstSolenoid.set(Value.kOff);
+    }
+
 }

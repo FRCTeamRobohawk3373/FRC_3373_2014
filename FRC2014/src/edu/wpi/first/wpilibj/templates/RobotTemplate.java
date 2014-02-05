@@ -7,6 +7,8 @@
 package edu.wpi.first.wpilibj.templates;
 
 import edu.wpi.first.wpilibj.SimpleRobot;
+import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.templates.*;
 import java.io.IOException;
@@ -29,8 +31,9 @@ public class RobotTemplate extends SimpleRobot {
     Drive drive = Drive.getInstance();
     Launcher launcher = new Launcher();
     PiSocket socket = new PiSocket();
+    LiveWindow liveWindow = new LiveWindow();
+    Talon testTalon = new Talon(5);
     
-
     int LX = 1;
     int LY = 2;
     int Triggers = 3;
@@ -64,7 +67,7 @@ public class RobotTemplate extends SimpleRobot {
             drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
             if (driveStick.isAPushed()) {
                 System.out.println("A Presser");
-                launcher.shootThread();
+                //launcher.shootThread();
             }
             if (driveStick.isBPushed()){     
                 try {
@@ -89,6 +92,39 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters test mode.
      */
     public void test() {
+        /********************
+        * Shooter Test Code *
+        ********************/
+        double analogInput;
+        while(isTest()){
+            liveWindow.setEnabled(false);
+            if(driveStick.isAHeld()){
+                launcher.addPressure();
+            }
+            if(driveStick.isBHeld()){
+                launcher.exhaustPressure();
+            }
+            if(driveStick.isXPushed()){
+                launcher.lockShootingPistons();
+            }
+            if(driveStick.isYPushed()){
+                launcher.unlockShootingPistons();//aka fire
+            }
+            if(driveStick.isBackPushed()){
+                //launcher.retractShootingPistons();//aka get ready to shoot again
+                launcher.doNothingLockingPistons();
+            }
 
+        
+            analogInput = launcher.pressureSensor.getValue();
+            if(analogInput < 3.7){
+                testTalon.set(.5);
+            }
+            SmartDashboard.putNumber("Pressure Sensor", analogInput);
+            driveStick.clearButtons();
+            shootStick.clearButtons();
+        }
+        
+        
     }
 }

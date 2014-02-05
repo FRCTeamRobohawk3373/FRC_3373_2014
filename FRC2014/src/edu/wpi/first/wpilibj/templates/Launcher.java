@@ -15,45 +15,84 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
 
 /**
  *
- * @author Jamie
+ * @author Jamie Dyer
  */
 public class Launcher {
 
-    DoubleSolenoid lockingSolenoid = new DoubleSolenoid(3, 1, 2);//currently in solenoid port 1 for testing
-    Solenoid pressureSolenoid = new Solenoid(3, 3);
-    Solenoid exhaustSolenoid = new Solenoid(3, 8);
-    Solenoid testLockingSolenoid = new Solenoid(5);
+    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 5, 6);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
+    
+    Solenoid pressureSolenoidR = new Solenoid(2, 8);//
+    Solenoid pressureSolenoidL = new Solenoid(2, 1);
+    Solenoid exhaustSolenoid = new Solenoid(2, 4);//defaults to exhaust
+    
+    //Solenoid testLockingSolenoid = new Solenoid(8);//do we need this?
+    
+    Solenoid retractingSolenoid = new Solenoid(2, 3);
+    
+    DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing, when true the piston is home and ready for launching algorithm
 
-    DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing
-
-    AnalogChannel pressureSensor = new AnalogChannel(1);
+    AnalogChannel pressureSensor;
 
     boolean isReadyToShoot;
-    double currentPressure;
+    double  currentPressure;
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
 
+    public Launcher() {
+        this.pressureSensor = new AnalogChannel(1);
+    }
+
     public void unlockShootingPistons() {
-        lockingSolenoid.set(DoubleSolenoid.Value.kForward); //false is allowing the pisotn to retract releasing the shooting piston
+        lockingSolenoids.set(DoubleSolenoid.Value.kForward);
     }
 
     public void lockShootingPistons() {
-        if (isPistonHome.get()) {
-            lockingSolenoid.set(DoubleSolenoid.Value.kReverse); //true is allowing the piston to extend locking the shooting pistions
-        }
+        //if (isPistonHome.get()) {
+            lockingSolenoids.set(DoubleSolenoid.Value.kReverse);
+        //}
     }
-
+    public void doNothingLockingPistons(){
+        lockingSolenoids.set(DoubleSolenoid.Value.kOff);
+    }
+    public void addPressure(){
+        exhaustSolenoid.set(true);//close exhaust before adding pressure        
+        pressureSolenoidR.set(true);
+        pressureSolenoidL.set(true);
+    }
+    public void exhaustPressure(){
+        pressureSolenoidR.set(false);//don't add pressure while we are exhausting pressure
+        pressureSolenoidL.set(false);
+        exhaustSolenoid.set(true);
+    }
+    public void holdPressure(){
+        pressureSolenoidR.set(false);
+        pressureSolenoidL.set(false);//don't add pressure
+        exhaustSolenoid.set(true);//don't exhaust pressure
+    }
+    public void retractShootingPistons(){
+        exhaustSolenoid.set(false);//exhaust before returning catapult home
+        retractingSolenoid.set(true);    
+    }
+    public void returnCatapultToHome(){
+        final Thread thread = new Thread(new Runnable() {
+            public void run() {
+                while(!isPistonHome.get()){
+                    retractShootingPistons();
+                }
+            }
+        });
+    }
     public boolean chargeShootingPistons(final double targetPressure) {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 isThreadRunning = true;
                 while (targetPressure > currentPressure) {
                     currentPressure = pressureSensor.getValue(); //we want to change this .getValue(that returns a voltage) to instead return pressure in psi
-                    pressureSolenoid.set(true);
+                    addPressure();
                 }
                 while (targetPressure < currentPressure) {
                     currentPressure = pressureSensor.getValue(); //we want to change this .getValue(that returns a voltage) to instead return pressure in psi 
-                    exhaustSolenoid.set(true);
+                    exhaustPressure();
                 }
             }
         });
@@ -62,7 +101,7 @@ public class Launcher {
         }
         return isReadyToShoot;
     }
-
+/*
     public void shootThread() {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -93,5 +132,5 @@ public class Launcher {
             thread.start();
         }
 
-    }
+    } */
 }
