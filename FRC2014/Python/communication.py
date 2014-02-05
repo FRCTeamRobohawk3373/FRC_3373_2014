@@ -1,43 +1,46 @@
 import socket
 
 
-TCP_IP = '127.0.0.1'
-TCP_PORT = 5005
+TCP_IP = 'localhost'
+TCP_PORT = 3373
 BUFFER_SIZE = 1024
-MESSAGE = "Hello, World!"
-
-
-def client():
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect((TCP_IP, TCP_PORT))
-    s.send(MESSAGE)
-    data = s.recv(BUFFER_SIZE)
-    s.close()
-
-    print "received data:", data
 
 def server():
+    #Start the Server
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind((TCP_IP, TCP_PORT))
+    s.bind(('', TCP_PORT))
     s.listen(1)
-
+    
+    #Pause and Wait for Connection
     conn, addr = s.accept()
     print 'Connection address:', addr
-    while 1:
+    
+    #Recieve and Send Data 
+    while (True):
+        print("Waiting For Data")
         data = conn.recv(BUFFER_SIZE)
-        if not data: break
-        print "received data:", data
-        conn.send(data)  # echo
-        conn.close()
+        print('Received Data: ' + data)
 
-def restart():
+        if not data: break
+
+        if len(data) >= 1:
+            if data[0] == "@":
+                #Parse Data
+                command = data.replace("@", "")
+            
+                #Do Things Here!!
+                print("Command: " + command)
+                response = "@" + command + "@\n" #echo
+                
+                #Respond
+                print('Sending: ' + response)
+                conn.send(response.encode("utf-16"))
+    
+def shutdown():
     command = "/usr/bin/sudo /sbin/shutdown -r now"
     import subprocess
     process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
     output = process.communicate()[0]
     print output
-
-#!/usr/bin/env python
-
 
 server()
