@@ -1,5 +1,3 @@
-# vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
-
 import SimpleCV
 import re
 import thread
@@ -13,7 +11,7 @@ TCP_IP = 'localhost'
 TCP_PORT = 3373
 BUFFER_SIZE = 1024
 
-camURL = "http://10.33.73.167:80/jpg/image.jpg"
+camURL = 'http://192.168.0.4:80/jpg/image.jpg'
 
 ratioLow = 1.1
 ratioHigh = 1.6
@@ -22,36 +20,42 @@ screenSize = (800, 600)
 if DEBUG: display = SimpleCV.Display(screenSize)
 
 isHot = False
-distance = 0
+distance = 26.55
 
 def main():
-	
-	thread.start_new_thread(server, ())
+    #thread.start_new_thread(vision, ())
+    thread.start_new_thread(server, ())
+        
+    while(True):
+        time.sleep(1)
+
+def vision():
     
-    while (DEBUG and display.isNotDone()) or (DEBUG != True):
+    print("Starting Vision")
+    
+    while (True):
 
         img = SimpleCV.Image(camURL)
-
+        
         greenDist = img.colorDistance(SimpleCV.Color.AQUAMARINE)
         filtered = img - greenDist
-
+        
         blobs = filtered.findBlobs(minsize = 300)
-
+        
         if blobs:
             rectangles = blobs.filter([b.isRectangle(0.3) for b in blobs])
             if rectangles:
                 
-                checkIsHot(rectangles, isHot)
+                checkIsHot(rectangles)
                 getDistance(rectangles)
 
                 if DEBUG:
+                    debugPrint(rectangles)
                     drawingLayer = SimpleCV.DrawingLayer(screenSize)
                     drawRects(rectangles, filtered, drawingLayer)
-                    debugPrint(rectangles)
                     filtered.applyLayers()
                     
         if DEBUG: filtered.save(display)
-
 
 def debugPrint(rectangles):
     if len(rectangles) > 1:
@@ -104,19 +108,19 @@ def server():
 
         if data[0] == "@":
             #Parse Data
-            data = unicode(data)
-            data = data.replace("@", "")
-            data = data.replace("\n", "")
-            command = re.sub(r'[^a-zA-Z0-9]','', data)
-                
+            command = unicodedata.normalize("NFD", unicode(re.sub(r'[^a-zA-Z0-9]',"", unicode(data))))
+            
             #Make Response
             print("Command: " + command)
             response = ""
             
-            if unicodedata.normalize("NFD", unicode(command)) == unicodedata.normalize("NFD", unicode("ISHOT")):
+            if command == "ISHOT":
                 response = str(isHot)
-            elif unicodedata.normalize("NFD", unicode(command)) == unicodedata.normalize("NFD", unicode("DISTANCE")):
+            elif command == "DISTANCE":
                 response = str(distance)
+            elif command == "SHUTDOWN":
+                shutdown()
+                response = "AS YOU WISH, MY BENEVOLENT DICTATOR"
             else:
                 response = "INVALID"
                 
@@ -128,5 +132,12 @@ def server():
             conn.send(response.encode("utf-16"))
             
     print("Connection Closed")
+
+def shutdown():
+    command = "/usr/bin/sudo /sbin/shutdown -r now"
+    import subprocess
+    process = subprocess.Popen(command.split(), stdout=subprocess.PIPE)
+    output = process.communicate()[0]
+    print output
 
 main()
