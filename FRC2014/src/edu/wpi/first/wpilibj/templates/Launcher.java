@@ -20,17 +20,20 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
 public class Launcher {
 
     DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 5, 6);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
+
     
-    Solenoid pressureSolenoidR = new Solenoid(2, 8);//
+    Solenoid pressureSolenoidR = new Solenoid(1, 8);//not the final port number
     Solenoid pressureSolenoidL = new Solenoid(2, 1);
-    Solenoid exhaustSolenoid = new Solenoid(2, 4);//defaults to exhaust
+    Solenoid exhaustSolenoid = new Solenoid(2, 3);//defaults to exhaust
     
     //Solenoid testLockingSolenoid = new Solenoid(8);//do we need this?
     
-    Solenoid retractingSolenoid = new Solenoid(2, 3);
+    Solenoid retractingSolenoidL = new Solenoid(2, 4);
+    //Solenoid retractingSolenoidR = new Solenoid(2, 4);
     
     DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing, when true the piston is home and ready for launching algorithm
 
+    AnalogChannel potSensor = new AnalogChannel(1);
     AnalogChannel pressureSensor;
 
     boolean isReadyToShoot;
@@ -39,7 +42,7 @@ public class Launcher {
     boolean isShootThreadRunning = false;
 
     public Launcher() {
-        this.pressureSensor = new AnalogChannel(1);
+        this.pressureSensor = new AnalogChannel(2);
     }
 
     public void unlockShootingPistons() {
@@ -55,7 +58,7 @@ public class Launcher {
         lockingSolenoids.set(DoubleSolenoid.Value.kOff);
     }
     public void addPressure(){
-        exhaustSolenoid.set(true);//close exhaust before adding pressure        
+        exhaustSolenoid.set(false);//close exhaust before adding pressure        
         pressureSolenoidR.set(true);
         pressureSolenoidL.set(true);
     }
@@ -67,12 +70,18 @@ public class Launcher {
     public void holdPressure(){
         pressureSolenoidR.set(false);
         pressureSolenoidL.set(false);//don't add pressure
-        exhaustSolenoid.set(true);//don't exhaust pressure
+        exhaustSolenoid.set(false);//don't exhaust pressure
     }
     public void retractShootingPistons(){
-        exhaustSolenoid.set(false);//exhaust before returning catapult home
-        retractingSolenoid.set(true);    
+        exhaustSolenoid.set(true);//exhaust before returning catapult home
+        retractingSolenoidL.set(true);    
     }
+    public void shoot(){
+        addPressure();
+        unlockShootingPistons();
+    }
+
+    
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
