@@ -96,31 +96,50 @@ public class RobotTemplate extends SimpleRobot {
         * Shooter Test Code *
         ********************/
         double analogInput;
+        double potInput;
+        liveWindow.setEnabled(false);
         while(isTest()){
             liveWindow.setEnabled(false);
+            
             if(driveStick.isAHeld()){
                 launcher.addPressure();
-            }
-            if(driveStick.isBHeld()){
+            } else if(driveStick.isBHeld()){
                 launcher.exhaustPressure();
+            } else if(driveStick.isYHeld()){
+                launcher.shoot();//aka fire
+            } else if(driveStick.isStartHeld()){
+                launcher.retractShootingPistons();
+            } else {
+                launcher.holdPressure();
+                launcher.retractingSolenoidL.set(false);//if nothing then don't retract
             }
+
             if(driveStick.isXPushed()){
                 launcher.lockShootingPistons();
             }
-            if(driveStick.isYPushed()){
-                launcher.unlockShootingPistons();//aka fire
-            }
+
             if(driveStick.isBackPushed()){
                 //launcher.retractShootingPistons();//aka get ready to shoot again
                 launcher.doNothingLockingPistons();
             }
-
-        
-            analogInput = launcher.pressureSensor.getValue();
-            if(analogInput < 3.7){
-                testTalon.set(.5);
+            /*
+            if(driveStick.isRBPushed()){
+                launcher.grabBall();
+            } else if(driveStick.isLBPushed()){
+                launcher.releaseBall();
             }
+            if(driveStick.isStartPushed()){
+                launcher.doNothingBall();
+            }
+            */
+
+            
+        
+            analogInput = launcher.pressureSensor.getVoltage();
+            potInput = launcher.potSensor.getVoltage();
+            
             SmartDashboard.putNumber("Pressure Sensor", analogInput);
+            SmartDashboard.putNumber("Pot Sensor", potInput);
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
