@@ -25,8 +25,15 @@ public class PiSocket {
     DataInputStream is = null;
     BufferedReader BR;
     boolean isReceiveThreadRunning = false;
-    static char serverChar;
+    static String serverChar;
     boolean isConnected = false;
+    static boolean isShutdownRequested = false;
+    boolean isUpdaterThreadRunning = false;
+    String receiveString = null;
+    double distanceDouble;
+    boolean isHot;
+    boolean isDistanceValid;
+    int timeoutCounter = 0;
 
     
     public void connect() {
@@ -34,7 +41,7 @@ public class PiSocket {
             connection = (SocketConnection) Connector.open("socket://10.33.73.5:3500", Connector.READ_WRITE, true);
             os = connection.openDataOutputStream();
             is = connection.openDataInputStream();
-            BR = new BufferedReader(new InputStreamReader(connection.openInputStream(), "UTF-16"));
+            BR = new BufferedReader(new InputStreamReader(connection.openInputStream(), "UTF-8"));
             isConnected = true;
             System.out.println("Connected");
         } catch (IOException ex) {
@@ -62,8 +69,8 @@ public class PiSocket {
 
     }
 
-    public char receiveString() throws IOException {
- Thread thread = new Thread(new Runnable() {
+    public String receiveString() throws IOException {
+        Thread thread = new Thread(new Runnable() {
             public void run() {
                 isReceiveThreadRunning = true;
                 System.out.println("Receiving");
@@ -100,6 +107,64 @@ public class PiSocket {
         }
         
         return serverChar;
+    }
+    
+    public void globalVariableUpdateAndListener(){
+        Thread thread = new Thread(new Runnable(){
+            public void run() {
+                isUpdaterThreadRunning = true;
+                while (!isShutdownRequested){
+                    try {
+                        sendString("DISTANCE");
+                        receiveString = receiveString();
+                        Thread.sleep(100L);
+                        sendString("ISHOT");
+                        receiveString = receiveString();
+                        receiveConverter();
+                        System.out.println("Distance: " + distanceDouble);
+                        System.out.println("ISHOT: " + isHot);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                try {
+                    sendString("SHUTDOWN");
+                    disconnect();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+                isUpdaterThreadRunning = false;
+                
+                
+            }
+        });
+        
+        if (!isUpdaterThreadRunning){
+            thread.start();
+        }
+        
+    }
+    
+    public void receiveConverter(){
+        if (receiveString != "0" && receiveString != "True" && receiveString != "False"){
+            distanceDouble = Double.parseDouble(receiveString);
+            isDistanceValid = true;
+        } else if (receiveString == "0"){
+            isDistanceValid = false;
+        }
+        if (receiveString == "TRUE"){
+            isHot = true;
+        } else if (receiveString == "FALSE"){
+            isHot = false;
+        }
+    } 
+    
+    public void checkForConnection(int loopTime){
+        if (loopTime%500 == 0){
+            
+        }
     }
     
 
