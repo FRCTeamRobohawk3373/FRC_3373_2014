@@ -124,6 +124,7 @@ public class PiSocket {
                         System.out.println("Distance: " + distanceDouble);
                         System.out.println("ISHOT: " + isHot);
                     } catch (IOException ex) {
+                        connect();
                         ex.printStackTrace();
                     } catch (InterruptedException ex) {
                         ex.printStackTrace();
@@ -148,24 +149,20 @@ public class PiSocket {
     }
     
     public void receiveConverter(){
-        if (receiveString != "0" && receiveString != "True" && receiveString != "False"){
+        if (!receiveString.equals("0") && !receiveString.equals("True") && !receiveString.equals("False")){
             distanceDouble = Double.parseDouble(receiveString);
             isDistanceValid = true;
-        } else if (receiveString == "0"){
+        } else if (receiveString.equals("0")){
             isDistanceValid = false;
         }
-        if (receiveString == "TRUE"){
+        if (receiveString.equals("TRUE")){
             isHot = true;
-        } else if (receiveString == "FALSE"){
+        } else if (receiveString.equals("FALSE")){
             isHot = false;
         }
     } 
     
-    public void checkForConnection(int loopTime){
-        if (loopTime%500 == 0){
-            
-        }
-    }
+
     
 
 }
