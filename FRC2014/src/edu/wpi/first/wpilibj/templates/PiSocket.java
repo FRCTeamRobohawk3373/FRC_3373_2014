@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;
 import javax.microedition.io.StreamConnection;
@@ -23,7 +24,7 @@ public class PiSocket {
     SocketConnection connection;
     DataOutputStream os = null;
     DataInputStream is = null;
-    BufferedReader BR;
+    InputStreamReader ISR;
     boolean isReceiveThreadRunning = false;
     static String serverChar;
     boolean isConnected = false;
@@ -38,10 +39,10 @@ public class PiSocket {
     
     public void connect() {
         try {
-            connection = (SocketConnection) Connector.open("socket://10.33.73.5:3500", Connector.READ_WRITE, true);
+            connection = (SocketConnection) Connector.open("socket://10.33.73.104:3373", Connector.READ_WRITE, true);
             os = connection.openDataOutputStream();
             is = connection.openDataInputStream();
-            BR = new BufferedReader(new InputStreamReader(connection.openInputStream(), "UTF-8"));
+            ISR = new InputStreamReader(connection.openDataInputStream(), "UTF-8");
             isConnected = true;
             System.out.println("Connected");
         } catch (IOException ex) {
@@ -77,7 +78,7 @@ public class PiSocket {
                 String character = "";
                 
                 try {
-                    character = BR.readLine();
+                    character = readLine(ISR);
                     
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -114,22 +115,26 @@ public class PiSocket {
             public void run() {
                 isUpdaterThreadRunning = true;
                 while (!isShutdownRequested){
-                    try {
-                        sendString("DISTANCE");
-                        receiveString = receiveString();
-                        Thread.sleep(100L);
-                        sendString("ISHOT");
-                        receiveString = receiveString();
-                        receiveConverter();
-                        System.out.println("Distance: " + distanceDouble);
-                        System.out.println("ISHOT: " + isHot);
-                    } catch (IOException ex) {
+                    if (isConnected){
+                        try {
+                            sendString("DISTANCE");
+                            receiveString = receiveString();
+                            Thread.sleep(100L);
+                            sendString("ISHOT");
+                            receiveString = receiveString();
+                            receiveConverter();
+                            System.out.println("Distance: " + distanceDouble);
+                            System.out.println("ISHOT: " + isHot);
+                        } catch (IOException ex) {
+                            connect();
+                            ex.printStackTrace();
+                        } catch (InterruptedException ex) {
+                            ex.printStackTrace();
+                        }
+                    } else {
                         connect();
-                        ex.printStackTrace();
-                    } catch (InterruptedException ex) {
-                        ex.printStackTrace();
                     }
-                }
+                
                 try {
                     sendString("SHUTDOWN");
                     disconnect();
@@ -138,7 +143,7 @@ public class PiSocket {
                 }
                 isUpdaterThreadRunning = false;
                 
-                
+                }   
             }
         });
         
@@ -162,6 +167,21 @@ public class PiSocket {
         }
     } 
     
+    public String readLine(Reader reader) throws IOException {
+            StringBuffer line = new StringBuffer();
+            int c = reader.read();
+
+            while (c != -1 && c != '\n') {
+                line.append((char)c);
+                c = reader.read();
+            }
+
+            if (line.length() == 0) {
+                return null;
+            }
+
+            return line.toString();
+        }    
 
     
 

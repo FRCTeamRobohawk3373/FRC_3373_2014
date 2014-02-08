@@ -62,6 +62,9 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             socket.globalVariableUpdateAndListener();
+            SmartDashboard.putNumber("Distance", socket.distanceDouble);
+            SmartDashboard.putBoolean("Is HOT", socket.isHot);
+            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException ex) {
