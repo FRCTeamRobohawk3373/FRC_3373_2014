@@ -32,6 +32,7 @@ public class RobotTemplate extends SimpleRobot {
     Launcher launcher = new Launcher();
     Pickup BallGrabber = new Pickup();
     PiSocket socket = new PiSocket();
+    Diagnostics diag = new Diagnostics();
     LiveWindow liveWindow = new LiveWindow();
     
     int LX = 1;
@@ -59,6 +60,8 @@ public class RobotTemplate extends SimpleRobot {
                 System.out.println("Trying to connect");
                 socket.connect();
             }
+            
+            socket.globalVariableUpdateAndListener();
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException ex) {
@@ -83,6 +86,8 @@ public class RobotTemplate extends SimpleRobot {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
+            
+            
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
@@ -134,7 +139,9 @@ public class RobotTemplate extends SimpleRobot {
         
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
-            
+            SmartDashboard.putNumber("Distance", socket.distanceDouble);
+            SmartDashboard.putBoolean("Is HOT", socket.isHot);
+            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             SmartDashboard.putNumber("Pressure Sensor", analogInput);
             SmartDashboard.putNumber("Pot Sensor", potInput);
             driveStick.clearButtons();
