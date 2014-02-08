@@ -33,7 +33,6 @@ public class RobotTemplate extends SimpleRobot {
     Pickup BallGrabber = new Pickup();
     PiSocket socket = new PiSocket();
     LiveWindow liveWindow = new LiveWindow();
-    Talon testTalon = new Talon(5);
     
     int LX = 1;
     int LY = 2;

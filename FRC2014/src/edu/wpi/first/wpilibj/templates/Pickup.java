@@ -17,8 +17,8 @@ import edu.wpi.first.wpilibj.Talon;
  * @author Jamie
  */
 public class Pickup {
-    AnalogChannel pickupPot = new AnalogChannel(1); //Voltage from one to five
-    Talon actuateTalon = new Talon(1);
+    AnalogChannel pickupPot = new AnalogChannel(3); //Voltage from one to five
+    //Talon actuateTalon = new Talon(2);
     Deadband deadband = new Deadband();
     
     DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 7, 8);
@@ -75,11 +75,11 @@ public class Pickup {
      */
     public void goToAngle(double target, double currentPos, double speed){
         if (target < currentPos){
-            actuateTalon.set(speed);
+            //actuateTalon.set(speed);
         } else if (target > currentPos){
-            actuateTalon.set(-speed);
+            //actuateTalon.set(-speed);
         } else {
-            actuateTalon.set(0);
+            //actuateTalon.set(0);
         }
     }
     /***
@@ -90,11 +90,11 @@ public class Pickup {
      */
     public double angleDiag(boolean up, boolean down){
         if (up && !down){
-            actuateTalon.set(diagSpeed);
+            //actuateTalon.set(diagSpeed);
         } else if (down && !up){
-            actuateTalon.set(-diagSpeed);
+            //actuateTalon.set(-diagSpeed);
         } else {
-            actuateTalon.set(0);
+            //actuateTalon.set(0);
         }
         return getPickupPos();
     }
