@@ -62,6 +62,9 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             socket.globalVariableUpdateAndListener();
+            SmartDashboard.putNumber("Distance", socket.distanceDouble);
+            SmartDashboard.putBoolean("Is HOT", socket.isHot);
+            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException ex) {
@@ -139,9 +142,7 @@ public class RobotTemplate extends SimpleRobot {
         
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
-            SmartDashboard.putNumber("Distance", socket.distanceDouble);
-            SmartDashboard.putBoolean("Is HOT", socket.isHot);
-            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
+
             SmartDashboard.putNumber("Pressure Sensor", analogInput);
             SmartDashboard.putNumber("Pot Sensor", potInput);
             driveStick.clearButtons();
