@@ -144,14 +144,9 @@ public class RobotTemplate extends SimpleRobot {
             currentPressurePSI = launcher.pressureInCylinder();
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
-            SmartDashboard.putNumber("Distance", socket.distanceDouble);
-            SmartDashboard.putBoolean("Is HOT", socket.isHot);
-            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
-            
-            SmartDashboard.putNumber("Pressure PSI:", currentPressurePSI);
-            SmartDashboard.putNumber("Pressure Voltage:", analogInput);
-            SmartDashboard.putNumber("Pot Sensor:", potInput);
-            
+
+            SmartDashboard.putNumber("Pressure Sensor", analogInput);
+            SmartDashboard.putNumber("Pot Sensor", potInput);
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
