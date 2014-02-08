@@ -35,7 +35,14 @@ public class Launcher {
 
     AnalogChannel potSensor = new AnalogChannel(1);
     AnalogChannel pressureSensor;
-
+    
+    double lowestVoltagePressure = 0.5;
+    double highestVoltagePressure = 4.5;
+    double lowestPressure = 0;
+    double highestPressure = 100;
+    double pressurePSI;
+    double slope;
+    
     boolean isReadyToShoot;
     double  currentPressure;
     boolean isThreadRunning = false;
@@ -80,7 +87,11 @@ public class Launcher {
         addPressure();
         unlockShootingPistons();
     }
-
+    public double pressureInCylinder(){
+        slope = ((highestVoltagePressure - lowestVoltagePressure)/(highestPressure - lowestPressure));
+        pressurePSI = slope * (pressureSensor.getVoltage() - lowestPressure) + lowestVoltagePressure;
+        return pressurePSI;
+    }
     
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {
@@ -103,12 +114,16 @@ public class Launcher {
                     currentPressure = pressureSensor.getValue(); //we want to change this .getValue(that returns a voltage) to instead return pressure in psi 
                     exhaustPressure();
                 }
+                isReadyToShoot = true;
             }
         });
         if (!isThreadRunning) {
             thread.start();
         }
         return isReadyToShoot;
+    }
+    public void maintainShootingPistonPressure(){
+        
     }
 /*
     public void shootThread() {
