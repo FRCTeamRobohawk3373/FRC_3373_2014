@@ -30,6 +30,7 @@ public class RobotTemplate extends SimpleRobot {
     SuperJoystick shootStick = new SuperJoystick(2);
     Drive drive = Drive.getInstance();
     Launcher launcher = new Launcher();
+    Pickup BallGrabber = new Pickup();
     PiSocket socket = new PiSocket();
     LiveWindow liveWindow = new LiveWindow();
     Talon testTalon = new Talon(5);
@@ -122,18 +123,15 @@ public class RobotTemplate extends SimpleRobot {
                 //launcher.retractShootingPistons();//aka get ready to shoot again
                 launcher.doNothingLockingPistons();
             }
-            /*
-            if(driveStick.isRBPushed()){
-                launcher.grabBall();
-            } else if(driveStick.isLBPushed()){
-                launcher.releaseBall();
-            }
-            if(driveStick.isStartPushed()){
-                launcher.doNothingBall();
-            }
-            */
-
             
+            if(shootStick.isRBPushed()){
+                BallGrabber.grabBall();
+            } else if(shootStick.isLBPushed()){
+                BallGrabber.releaseBall();
+            }
+            if(shootStick.isStartPushed()){
+                BallGrabber.doNothingBall();
+            }
         
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();

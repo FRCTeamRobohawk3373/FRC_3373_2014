@@ -20,7 +20,7 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
 public class Launcher {
 
     DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 5, 6);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
-    DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 7, 8);
+
     
     Solenoid pressureSolenoidR = new Solenoid(1, 8);//not the final port number
     Solenoid pressureSolenoidL = new Solenoid(2, 1);
@@ -80,15 +80,7 @@ public class Launcher {
         addPressure();
         unlockShootingPistons();
     }
-    public void grabBall(){
-        ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
-    }
-    public void releaseBall(){
-        ballGrabberSolenoid.set(DoubleSolenoid.Value.kReverse);
-    }
-    public void doNothingBall(){
-        ballGrabberSolenoid.set(DoubleSolenoid.Value.kOff);
-    }
+
     
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {

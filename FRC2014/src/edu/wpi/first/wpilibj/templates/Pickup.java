@@ -21,7 +21,7 @@ public class Pickup {
     Talon actuateTalon = new Talon(1);
     Deadband deadband = new Deadband();
     
-    DoubleSolenoid firstSolenoid = new DoubleSolenoid(1, 5);
+    DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 7, 8);
     
     double maxAngle = 120;
     double maxVoltage = 5;
@@ -33,6 +33,15 @@ public class Pickup {
      * @param pos target position for the arm to go to
      * @param speed speed the arm should move at
      */
+    public void grabBall(){
+        ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
+    }
+    public void releaseBall(){
+        ballGrabberSolenoid.set(DoubleSolenoid.Value.kReverse);
+    }
+    public void doNothingBall(){
+        ballGrabberSolenoid.set(DoubleSolenoid.Value.kOff);
+    }
     public void goToPos(final double pos, final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
@@ -88,18 +97,6 @@ public class Pickup {
             actuateTalon.set(0);
         }
         return getPickupPos();
-    }
-    
-    public void openPickupArm(){
-        firstSolenoid.set(Value.kForward);
-    }
-    
-    public void closePickupArms(){
-        firstSolenoid.set(Value.kReverse);
-    }
-    
-    public void turnOffPickupSolenoid(){
-        firstSolenoid.set(Value.kOff);
     }
 
 }
