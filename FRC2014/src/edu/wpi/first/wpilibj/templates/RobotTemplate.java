@@ -102,6 +102,7 @@ public class RobotTemplate extends SimpleRobot {
         ********************/
         double analogInput;
         double potInput;
+        double currentPressurePSI;
         liveWindow.setEnabled(false);
         while(isTest()){
             liveWindow.setEnabled(false);
@@ -136,14 +137,18 @@ public class RobotTemplate extends SimpleRobot {
             if(shootStick.isStartPushed()){
                 BallGrabber.doNothingBall();
             }
-        
+            
+            currentPressurePSI = launcher.pressureInCylinder();
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
             SmartDashboard.putNumber("Distance", socket.distanceDouble);
             SmartDashboard.putBoolean("Is HOT", socket.isHot);
             SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
-            SmartDashboard.putNumber("Pressure Sensor", analogInput);
-            SmartDashboard.putNumber("Pot Sensor", potInput);
+            
+            SmartDashboard.putNumber("Pressure PSI:", currentPressurePSI);
+            SmartDashboard.putNumber("Pressure Voltage:", analogInput);
+            SmartDashboard.putNumber("Pot Sensor:", potInput);
+            
             driveStick.clearButtons();
             shootStick.clearButtons();
         }

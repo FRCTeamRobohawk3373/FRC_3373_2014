@@ -43,8 +43,9 @@ public class Launcher {
     double pressurePSI;
     double slope;
     
-    boolean isReadyToShoot;
     double  currentPressure;
+    boolean isReadyToShoot;
+    boolean hasShot;
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
 
@@ -86,10 +87,11 @@ public class Launcher {
     public void shoot(){
         addPressure();
         unlockShootingPistons();
+        hasShot = true;
     }
     public double pressureInCylinder(){
-        slope = ((highestVoltagePressure - lowestVoltagePressure)/(highestPressure - lowestPressure));
-        pressurePSI = slope * (pressureSensor.getVoltage() - lowestPressure) + lowestVoltagePressure;
+        slope = ((highestPressure - lowestPressure)/(highestVoltagePressure - lowestVoltagePressure));
+        pressurePSI = (slope * (pressureSensor.getVoltage() - lowestVoltagePressure) + lowestPressure);
         return pressurePSI;
     }
     
@@ -102,29 +104,37 @@ public class Launcher {
             }
         });
     }
-    public boolean chargeShootingPistons(final double targetPressure) {
+    public void chargeShootingPistons(final double targetPressure) {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 isThreadRunning = true;
                 while (targetPressure > currentPressure) {
-                    currentPressure = pressureSensor.getValue(); //we want to change this .getValue(that returns a voltage) to instead return pressure in psi
+                    currentPressure = pressureInCylinder(); 
                     addPressure();
                 }
                 while (targetPressure < currentPressure) {
-                    currentPressure = pressureSensor.getValue(); //we want to change this .getValue(that returns a voltage) to instead return pressure in psi 
+                    currentPressure = pressureInCylinder();
                     exhaustPressure();
                 }
-                isReadyToShoot = true;
+                while(!hasShot){
+                    if ((targetPressure - currentPressure) >= 1){
+                        addPressure();
+                    } else if((currentPressure - targetPressure) <= -1){
+                        exhaustPressure();
+                    }
+                    try{
+                        Thread.sleep(5);
+                    } catch(Exception x){
+                        //do nothing
+                    }
+                }
             }
         });
         if (!isThreadRunning) {
             thread.start();
         }
-        return isReadyToShoot;
     }
-    public void maintainShootingPistonPressure(){
-        
-    }
+    
 /*
     public void shootThread() {
         final Thread thread = new Thread(new Runnable() {
