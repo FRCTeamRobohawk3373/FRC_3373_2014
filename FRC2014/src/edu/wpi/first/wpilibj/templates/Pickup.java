@@ -28,11 +28,7 @@ public class Pickup {
     final double angleTolerance = 3;
     double diagSpeed = .5;
     static boolean isAtPosition = false;
-    /**
-     * Use this method to control the pickup arm. Threaded function
-     * @param pos target position for the arm to go to
-     * @param speed speed the arm should move at
-     */
+
     public void grabBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
     }
@@ -42,6 +38,12 @@ public class Pickup {
     public void doNothingBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kOff);
     }
+    
+    /**
+     * Use this method to control the pickup arm. Threaded function
+     * @param pos target position for the arm to go to
+     * @param speed speed the arm should move at
+     */
     public void goToPos(final double pos, final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {

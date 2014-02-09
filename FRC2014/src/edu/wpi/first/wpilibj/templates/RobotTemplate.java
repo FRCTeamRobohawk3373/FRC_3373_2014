@@ -78,20 +78,9 @@ public class RobotTemplate extends SimpleRobot {
                 System.out.println("A Presser");
                 //launcher.shootThread();
             }
-            if (driveStick.isBPushed()){     
-                try {
-                        socket.sendString("Test \n");
-                    } catch (IOException ex) {
-                        System.out.println("Sending failed");
-                        ex.printStackTrace();
-                    }
-            }
+
             
-            try {
-                System.out.print(socket.receiveString());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+
             
             
             driveStick.clearButtons();
