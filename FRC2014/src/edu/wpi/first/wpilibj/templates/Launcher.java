@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.templates.Diagnostics;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 
@@ -35,6 +36,7 @@ public class Launcher {
 
     AnalogChannel potSensor = new AnalogChannel(1);
     AnalogChannel pressureSensor;
+    Timer launcherTimer = new Timer();
     
     double lowestVoltagePressure = 0.5;
     double highestVoltagePressure = 4.5;
@@ -43,12 +45,14 @@ public class Launcher {
     double pressurePSI;
     double slope;
     
+    double targetPressure = 0;//in PSI
+    
     double  currentPressure;
     boolean isReadyToShoot;
-    boolean hasShot;
+    boolean hasShot = false;
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
-    RobotTemplate robot = new RobotTemplate();
+    boolean isReturningThreadRunning = false;
 
     public Launcher() {
         this.pressureSensor = new AnalogChannel(2);
@@ -80,15 +84,29 @@ public class Launcher {
         pressureSolenoidR.set(false);
         pressureSolenoidL.set(false);//don't add pressure
         exhaustSolenoid.set(false);//don't exhaust pressure
+        retractingSolenoidL.set(false);//don't retract
     }
     public void retractShootingPistons(){
         exhaustSolenoid.set(true);//exhaust before returning catapult home
         retractingSolenoidL.set(true);    
     }
     public void shoot(){
-        addPressure();
-        unlockShootingPistons();
-        hasShot = true;
+        final Thread thread = new Thread(new Runnable() {
+            public void run() {
+                isShootThreadRunning = true;
+                double timeWhenStarted = launcherTimer.get();
+                while((launcherTimer.get() - timeWhenStarted) <= 1){
+                    addPressure();
+                }
+                holdPressure();
+                isShootThreadRunning = false;
+            }
+        });
+        if (!isShootThreadRunning) {
+            unlockShootingPistons();
+            thread.start();
+            hasShot = true;
+        }
     }
     public double pressureInCylinder(){
         slope = ((highestPressure - lowestPressure)/(highestVoltagePressure - lowestVoltagePressure));
@@ -99,39 +117,51 @@ public class Launcher {
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
-                double timeWhenStarted = robot.robotTimer.get();
-                while((robot.robotTimer.get() - timeWhenStarted) <= 2){
+                isReturningThreadRunning = true;
+                double timeWhenStarted = launcherTimer.get();
+                while((launcherTimer.get() - timeWhenStarted) <= 1){
                     retractShootingPistons();
                 }
                 lockShootingPistons();
+                holdPressure();
+                isReturningThreadRunning = false;
             }
         });
+        if (!isReturningThreadRunning) {
+            thread.start();
+        }
     }
-    public void chargeShootingPistons(final double targetPressure) {
+    public void chargeShootingPistons() {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 isThreadRunning = true;
                 if(targetPressure != 0){
-                    while (targetPressure > currentPressure) {
-                        currentPressure = pressureInCylinder(); 
-                        addPressure();
-                    }
                     while (targetPressure < currentPressure) {
                         currentPressure = pressureInCylinder();
                         exhaustPressure();
                     }
+                    holdPressure();
+                    while (targetPressure > currentPressure) {
+                        currentPressure = pressureInCylinder(); 
+                        addPressure();
+                    }
+                    holdPressure();
                     while(!hasShot){
+                        currentPressure = pressureInCylinder();
                         if ((targetPressure - currentPressure) >= 1){
                             addPressure();
-                        } else if((currentPressure - targetPressure) <= -1){
+                        }
+                        if((currentPressure - targetPressure) <= -1){
                             exhaustPressure();
                         }
+                        holdPressure();
                         try{
                             Thread.sleep(5);
                         } catch(Exception x){
                             //do nothing
                         }
                     }
+                    holdPressure();
                     hasShot = true;
                 }
             }
