@@ -48,6 +48,7 @@ public class Launcher {
     boolean hasShot;
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
+    RobotTemplate robot = new RobotTemplate();
 
     public Launcher() {
         this.pressureSensor = new AnalogChannel(2);
@@ -98,9 +99,11 @@ public class Launcher {
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
-                while(!isPistonHome.get()){
+                double timeWhenStarted = robot.robotTimer.get();
+                while((robot.robotTimer.get() - timeWhenStarted) <= 2){
                     retractShootingPistons();
                 }
+                lockShootingPistons();
             }
         });
     }
@@ -108,25 +111,28 @@ public class Launcher {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 isThreadRunning = true;
-                while (targetPressure > currentPressure) {
-                    currentPressure = pressureInCylinder(); 
-                    addPressure();
-                }
-                while (targetPressure < currentPressure) {
-                    currentPressure = pressureInCylinder();
-                    exhaustPressure();
-                }
-                while(!hasShot){
-                    if ((targetPressure - currentPressure) >= 1){
+                if(targetPressure != 0){
+                    while (targetPressure > currentPressure) {
+                        currentPressure = pressureInCylinder(); 
                         addPressure();
-                    } else if((currentPressure - targetPressure) <= -1){
+                    }
+                    while (targetPressure < currentPressure) {
+                        currentPressure = pressureInCylinder();
                         exhaustPressure();
                     }
-                    try{
-                        Thread.sleep(5);
-                    } catch(Exception x){
-                        //do nothing
+                    while(!hasShot){
+                        if ((targetPressure - currentPressure) >= 1){
+                            addPressure();
+                        } else if((currentPressure - targetPressure) <= -1){
+                            exhaustPressure();
+                        }
+                        try{
+                            Thread.sleep(5);
+                        } catch(Exception x){
+                            //do nothing
+                        }
                     }
+                    hasShot = true;
                 }
             }
         });
