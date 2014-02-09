@@ -9,7 +9,9 @@ import com.sun.squawk.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import javax.microedition.io.Connector;
 import javax.microedition.io.SocketConnection;
@@ -22,8 +24,8 @@ import javax.microedition.io.StreamConnection;
 public class PiSocket {
 
     SocketConnection connection;
-    DataOutputStream os = null;
-    DataInputStream is = null;
+    OutputStream os = null;
+    InputStream is = null;
     InputStreamReader ISR;
     boolean isReceiveThreadRunning = false;
     static String serverChar;
@@ -35,14 +37,15 @@ public class PiSocket {
     boolean isHot;
     boolean isDistanceValid;
     int timeoutCounter = 0;
+    int bufferSize = 64;
+    static byte[] receiveData;
+    String rawData;
+    boolean isDistanceExpected = false;
 
     
     public void connect() {
         try {
             connection = (SocketConnection) Connector.open("socket://10.33.73.104:3373", Connector.READ_WRITE, true);
-            os = connection.openDataOutputStream();
-            is = connection.openDataInputStream();
-            ISR = new InputStreamReader(connection.openDataInputStream(), "UTF-8");
             isConnected = true;
             System.out.println("Connected");
         } catch (IOException ex) {
@@ -50,6 +53,14 @@ public class PiSocket {
             System.out.println("Connection Failed");
             isConnected = false;
         }
+        
+        try {
+            os = connection.openOutputStream();
+            is = connection.openInputStream();
+            //ISR = new InputStreamReader(connection.openInputStream(), "UTF-8");
+        } catch (IOException ex){
+            ex.printStackTrace();
+         }
     }
 
     public void disconnect() throws IOException {
@@ -61,16 +72,17 @@ public class PiSocket {
 
     }
 
-    public void sendString(String message) throws IOException{
+    public void sendString(char message) throws IOException{
         try {
-            os.writeChars(message);
+            os.flush();
+            os.write(message);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
 
     }
 
-    public String receiveString() throws IOException {
+    /*public String receiveString() throws IOException {
         Thread thread = new Thread(new Runnable() {
             public void run() {
                 isReceiveThreadRunning = true;
@@ -78,7 +90,7 @@ public class PiSocket {
                 String character = "";
                 
                 try {
-                    character = readLine(ISR);
+                    character = (is);
                     
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -108,7 +120,7 @@ public class PiSocket {
         }
         
         return serverChar;
-    }
+    }*/
     
     public void globalVariableUpdateAndListener(){
         Thread thread = new Thread(new Runnable(){
@@ -117,12 +129,18 @@ public class PiSocket {
                 while (!isShutdownRequested){
                     if (isConnected){
                         try {
-                            sendString("DISTANCE");
-                            receiveString = receiveString();
+                            
+                            Thread.sleep(1000L);
+                            sendString('a');
+                            receiveString = getRawData();
+                            receiveConverter(false, receiveString);
+                            
                             Thread.sleep(100L);
-                            sendString("ISHOT");
-                            receiveString = receiveString();
-                            receiveConverter();
+                            sendString('b');
+                            
+                            receiveString = getRawData();
+                            
+                            receiveConverter(true, receiveString);
                             System.out.println("Distance: " + distanceDouble);
                             System.out.println("ISHOT: " + isHot);
                         } catch (IOException ex) {
@@ -135,15 +153,14 @@ public class PiSocket {
                         connect();
                     }
                 
+                }   
                 try {
-                    sendString("SHUTDOWN");
+                    sendString('c');
                     disconnect();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
                 isUpdaterThreadRunning = false;
-                
-                }   
             }
         });
         
@@ -153,35 +170,61 @@ public class PiSocket {
         
     }
     
-    public void receiveConverter(){
-        if (!receiveString.equals("0") && !receiveString.equals("True") && !receiveString.equals("False")){
-            distanceDouble = Double.parseDouble(receiveString);
-            isDistanceValid = true;
-        } else if (receiveString.equals("0")){
+    public void receiveConverter(boolean flipFlop, String receivedString){
+        if (flipFlop){
+            try {
+                if (!receivedString.equals("0")){
+                    receivedString = receivedString.trim();
+                    distanceDouble = Double.parseDouble(receivedString);
+                    isDistanceValid = true;
+                } else {
+                    System.out.println("Failed");
+                    isDistanceValid = false;
+                }
+            } catch (NumberFormatException ex){
+            }
+        } else if (receivedString.equals("0")){
             isDistanceValid = false;
-        }
-        if (receiveString.equals("TRUE")){
-            isHot = true;
-        } else if (receiveString.equals("FALSE")){
-            isHot = false;
+        } else {
+            receivedString = receivedString.trim();
+            if (receivedString.equalsIgnoreCase("True")){
+                isHot = true;
+            } else if (receivedString.equals("False")){
+                isHot = false;
+            }
         }
     } 
     
-    public String readLine(Reader reader) throws IOException {
-            StringBuffer line = new StringBuffer();
-            int c = reader.read();
-
-            while (c != -1 && c != '\n') {
-                line.append((char)c);
-                c = reader.read();
-            }
-
-            if (line.length() == 0) {
+    public String getRawData() throws IOException {
+        byte[] input;
+        
+        if (isConnected) {
+            
+            if(is.available() <= bufferSize) {
+                input = new byte[is.available()]; //storage space sized to fit!
+                receiveData = new byte[is.available()];
+                is.read(input);
+                for(int i = 0; (i < input.length) && (input != null); i++) {
+                    receiveData[i] = input[i]; //transfer input to full size storage
+                }
+            } else {
+                System.out.println("PI OVERFLOW");
+                is.skip(is.available()); //reset if more is stored than buffer
                 return null;
             }
-
-            return line.toString();
-        }    
+            
+            rawData = ""; //String to transfer received data to
+            System.out.println("Raw Data: "+receiveData.length);
+            for (int i = 0; i < receiveData.length; i++) {
+                rawData += (char) receiveData[i]; //Cast bytes to chars and concatinate them to the String
+            }
+            System.out.println("Raw Data: " + rawData);
+            return rawData;
+        } else {
+            connect();
+            return null;
+        }
+    }
 
     
 
