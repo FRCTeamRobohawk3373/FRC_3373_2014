@@ -43,6 +43,7 @@ public class RobotTemplate extends SimpleRobot {
     int RX = 4;
     int RY = 5;
     int DP = 6;
+    
 
     public void autonomous() {
 
@@ -59,6 +60,7 @@ public class RobotTemplate extends SimpleRobot {
         
         while (isEnabled() && isOperatorControl()) {
             robotTimer.start();
+            launcher.launcherTimer.start();
             if (!socket.isConnected){
                 System.out.println("Trying to connect");
                 socket.connect();
@@ -109,25 +111,27 @@ public class RobotTemplate extends SimpleRobot {
         double analogInput;
         double potInput;
         double currentPressurePSI;
-        double targetPressure = 0; //in PSI
         double currentTime;
         robotTimer.start();
+        launcher.launcherTimer.start();
         liveWindow.setEnabled(false);
         launcher.lockShootingPistons();
         
         while(isTest()){
             liveWindow.setEnabled(false);
             if(driveStick.isAPushed()){
-                targetPressure += 5;
+                launcher.targetPressure += 5;
             } else if(driveStick.isBPushed()){
-                targetPressure -= 5;
-            } else if(driveStick.isXPushed()){
-                launcher.returnCatapultToHome();
+                launcher.targetPressure -= 5;
             } else if(driveStick.isYPushed()){
-                launcher.chargeShootingPistons(targetPressure);
+                launcher.returnCatapultToHome();
+            } else if(driveStick.isStartPushed()){
+                launcher.chargeShootingPistons();
+            } else if(driveStick.isXPushed()){
+                launcher.shoot();
             } else {
-                launcher.holdPressure();
-                launcher.retractingSolenoidL.set(false);
+                //launcher.holdPressure();
+                //launcher.retractingSolenoidL.set(false);
             }
             /*
             if(driveStick.isAHeld()){
@@ -144,9 +148,9 @@ public class RobotTemplate extends SimpleRobot {
             }
             */
 
-            if(driveStick.isXPushed()){
+            /*if(driveStick.isXPushed()){
                 launcher.lockShootingPistons();
-            }
+            }*/
 
             if(driveStick.isBackPushed()){
                 //launcher.retractShootingPistons();//aka get ready to shoot again
@@ -168,7 +172,8 @@ public class RobotTemplate extends SimpleRobot {
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
             
-            SmartDashboard.putNumber("Robot Time:", potInput);
+            SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
+            SmartDashboard.putNumber("Robot Time:", robotTimer.get());
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
             SmartDashboard.putNumber("Pressure Voltage", analogInput);
             SmartDashboard.putNumber("Pot Sensor", potInput);
