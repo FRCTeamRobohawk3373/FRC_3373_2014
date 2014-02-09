@@ -41,28 +41,46 @@ public class PiSocket {
     static byte[] receiveData;
     String rawData;
     boolean isDistanceExpected = false;
+    boolean isConnectThreadRunning = false;
 
     
     public void connect() {
-        try {
-            connection = (SocketConnection) Connector.open("socket://10.33.73.104:3373", Connector.READ_WRITE, true);
-            isConnected = true;
-            System.out.println("Connected");
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            System.out.println("Connection Failed");
-            isConnected = false;
-        }
-        
-        try {
-            os = connection.openOutputStream();
-            is = connection.openInputStream();
-            //ISR = new InputStreamReader(connection.openInputStream(), "UTF-8");
-        } catch (IOException ex){
-            ex.printStackTrace();
-         }
-    }
+        Thread thread = new Thread(new Runnable(){
+            public void run(){ 
+                isConnectThreadRunning = true;
+                try {
+                    connection = (SocketConnection) Connector.open("socket://10.33.73.104:3373", Connector.READ_WRITE, true);
+                    System.out.println("Connected");
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                    System.out.println("Connection Failed");
+                }
 
+                try {
+                    os = connection.openOutputStream();
+                    is = connection.openInputStream();
+                    //ISR = new InputStreamReader(connection.openInputStream(), "UTF-8");
+                } catch (IOException ex){
+                    ex.printStackTrace();
+                }
+            isConnectThreadRunning = false;
+            }
+        });
+        if (!isConnectThreadRunning){
+            thread.start();
+        }
+    }
+    
+    public void isConnected(){
+        try {
+            os.write('\n');
+            isConnected = true;
+        } catch (IOException ex){
+            isConnected = false;
+            ex.printStackTrace();
+        }
+    }
+    
     public void disconnect() throws IOException {
         is.close();
         os.close();
@@ -127,6 +145,7 @@ public class PiSocket {
             public void run() {
                 isUpdaterThreadRunning = true;
                 while (!isShutdownRequested){
+                    isConnected();
                     if (isConnected){
                         try {
                             

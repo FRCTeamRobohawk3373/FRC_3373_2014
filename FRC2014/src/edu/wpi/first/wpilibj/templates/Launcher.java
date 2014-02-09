@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.templates.Diagnostics;
 import edu.wpi.first.wpilibj.smartdashboard.*;
 
@@ -36,6 +37,8 @@ public class Launcher {
     AnalogChannel potSensor = new AnalogChannel(1);
     AnalogChannel pressureSensor;
     
+    Timer robotTimer = new Timer();
+    
     double lowestVoltagePressure = 0.5;
     double highestVoltagePressure = 4.5;
     double lowestPressure = 0;
@@ -48,7 +51,6 @@ public class Launcher {
     boolean hasShot;
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
-    RobotTemplate robot = new RobotTemplate();
 
     public Launcher() {
         this.pressureSensor = new AnalogChannel(2);
@@ -99,8 +101,8 @@ public class Launcher {
     public void returnCatapultToHome(){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
-                double timeWhenStarted = robot.robotTimer.get();
-                while((robot.robotTimer.get() - timeWhenStarted) <= 2){
+                double timeWhenStarted = robotTimer.get();
+                while((robotTimer.get() - timeWhenStarted) <= 2){
                     retractShootingPistons();
                 }
                 lockShootingPistons();

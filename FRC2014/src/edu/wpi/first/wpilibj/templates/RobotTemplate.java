@@ -31,7 +31,7 @@ public class RobotTemplate extends SimpleRobot {
     SuperJoystick shootStick = new SuperJoystick(2);
     Drive drive = Drive.getInstance();
     Launcher launcher = new Launcher();
-    Pickup BallGrabber = new Pickup();
+    Pickup pickup = new Pickup();
     PiSocket socket = new PiSocket();
     Diagnostics diag = new Diagnostics();
     LiveWindow liveWindow = new LiveWindow();
@@ -54,20 +54,25 @@ public class RobotTemplate extends SimpleRobot {
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled() && isOperatorControl()){
-            
+            launcher.robotTimer.start();
+            try {
+                socket.disconnect();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
         
         while (isEnabled() && isOperatorControl()) {
             robotTimer.start();
             if (!socket.isConnected){
                 System.out.println("Trying to connect");
-                socket.connect();
+                //socket.connect();
             }
             
-            socket.globalVariableUpdateAndListener();
-            SmartDashboard.putNumber("Distance", socket.distanceDouble);
-            SmartDashboard.putBoolean("Is HOT", socket.isHot);
-            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
+            //socket.globalVariableUpdateAndListener();
+            //SmartDashboard.putNumber("Distance", socket.distanceDouble);
+            //SmartDashboard.putBoolean("Is HOT", socket.isHot);
+            //SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException ex) {
@@ -78,6 +83,9 @@ public class RobotTemplate extends SimpleRobot {
                 System.out.println("A Presser");
                 //launcher.shootThread();
             }
+            
+            pickup.goToPos(30, .5);
+            System.out.println("Pickup Spot: " + pickup.getPickupPos());
 
             
 
@@ -143,12 +151,12 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if(shootStick.isRBPushed()){
-                BallGrabber.grabBall();
+                pickup.grabBall();
             } else if(shootStick.isLBPushed()){
-                BallGrabber.releaseBall();
+                pickup.releaseBall();
             }
             if(shootStick.isStartPushed()){
-                BallGrabber.doNothingBall();
+                pickup.doNothingBall();
             }
             
             currentTime = robotTimer.get();
