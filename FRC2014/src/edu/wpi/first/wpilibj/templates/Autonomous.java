@@ -24,7 +24,8 @@ public class Autonomous {
     }
     
     public void shootAuto(boolean isHot){
-        launcher.chargeShootingPistons(60);
+        launcher.targetPressure = 60;
+        launcher.chargeShootingPistons();
         while (!isHot){
             try {
                 Thread.sleep(10L);
