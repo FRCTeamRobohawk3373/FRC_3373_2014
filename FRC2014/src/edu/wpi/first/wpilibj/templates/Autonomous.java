@@ -33,7 +33,7 @@ public class Autonomous {
                 ex.printStackTrace();
             }
         }
-        launcher.unlockShootingPistons();
+        launcher.();
         
     }
 }

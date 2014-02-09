@@ -38,6 +38,8 @@ public class Launcher {
     AnalogChannel pressureSensor;
     Timer launcherTimer = new Timer();
     
+    Timer robotTimer = new Timer();
+    
     double lowestVoltagePressure = 0.5;
     double highestVoltagePressure = 4.5;
     double lowestPressure = 0;

@@ -17,22 +17,18 @@ import edu.wpi.first.wpilibj.Talon;
  * @author Jamie
  */
 public class Pickup {
-    AnalogChannel pickupPot = new AnalogChannel(3); //Voltage from one to five
-    //Talon actuateTalon = new Talon(2);
+    AnalogChannel pickupPot = new AnalogChannel(5); //Voltage from one to five
+    Talon actuateTalon = new Talon(5);
     Deadband deadband = new Deadband();
     
     DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 7, 8);
     
     double maxAngle = 120;
     double maxVoltage = 5;
-    final double angleTolerance = 3;
+    final double angleTolerance = 15;
     double diagSpeed = .5;
     static boolean isAtPosition = false;
-    /**
-     * Use this method to control the pickup arm. Threaded function
-     * @param pos target position for the arm to go to
-     * @param speed speed the arm should move at
-     */
+
     public void grabBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
     }
@@ -42,15 +38,23 @@ public class Pickup {
     public void doNothingBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kOff);
     }
+    
+    /**
+     * Use this method to control the pickup arm. Threaded function
+     * @param pos target position for the arm to go to
+     * @param speed speed the arm should move at
+     */
     public void goToPos(final double pos, final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 isAtPosition = false;
                 while (deadband.zero(Math.abs(getPickupPos() - pos), angleTolerance, 1)){
-                    if (deadband.zero(Math.abs(getPickupPos() - pos), angleTolerance, 1)){
-                        goToAngle(pos, getPickupPos(), speed);
-                    }
+                        
+                    System.out.println(getPickupPos());
+                    goToAngle(pos, getPickupPos(), speed);
+                    
                 }
+                actuateTalon.set(0);
                 isAtPosition = true;
             }
         });
@@ -73,14 +77,15 @@ public class Pickup {
      * @param currentPos current angle
      * @param speed motor speed
      */
-    public void goToAngle(double target, double currentPos, double speed){
-        if (target < currentPos){
-            //actuateTalon.set(speed);
+    private void goToAngle(double target, double currentPos, double speed){
+        System.out.println(deadband.zero(Math.abs(target-currentPos), 5, 1));
+        if (Math.abs(target-currentPos) <= 5) {
+            actuateTalon.set(0);
+        } else if (target < currentPos){
+            actuateTalon.set(speed);
         } else if (target > currentPos){
-            //actuateTalon.set(-speed);
-        } else {
-            //actuateTalon.set(0);
-        }
+            actuateTalon.set(-speed);
+        } 
     }
     /***
      * Diagnostic method to get baseline measurements

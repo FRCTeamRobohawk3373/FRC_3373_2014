@@ -32,6 +32,7 @@ public class LookUpTable {
         } else {
             return 0;//if we are out of range don't do anything!
         }
+        String neverGetsHere = "YOU WILL NEVER LEAVE";
         return 0;//we should never get here
     }
 }
