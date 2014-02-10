@@ -4,6 +4,9 @@ import thread
 import socket
 import unicodedata
 import time
+import math
+import platform
+print('Running in Python ' + platform.python_version())
 
 DEBUG = True
 
@@ -11,10 +14,10 @@ TCP_IP = 'localhost'
 TCP_PORT = 3373
 BUFFER_SIZE = 1024
 
-camURL = 'http://192.168.0.4:80/jpg/image.jpg'
+camURL = 'http://10.33.73.4:80/jpg/image.jpg'
 
-ratioLow = 1.1
-ratioHigh = 1.6
+ratioLow = 0.5
+ratioHigh = 0.9
 
 screenSize = (800, 600)
 if DEBUG: display = SimpleCV.Display(screenSize)
@@ -34,7 +37,6 @@ def main():
     thread.start_new_thread(server, ())
     
     while(True):
-        isVisionRunning = False
         time.sleep(1)
         if isVisionRunning == False:
             thread.start_new_thread(vision, ())
@@ -46,60 +48,89 @@ def vision():
     global isVisionRunning
     global distance
     
+    isVisionRunning = True
+    
     print("Starting Vision")
     
-    while (True):
-        
-        isVisionRunning = True
-
-        img = SimpleCV.Image(camURL)
-        
-        greenDist = img.colorDistance(SimpleCV.Color.AQUAMARINE)
-        filtered = img - greenDist
-        
-        blobs = filtered.findBlobs(minsize = 300)
-        
-        if blobs:
-            rectangles = blobs.filter([b.isRectangle(0.3) for b in blobs])
-            if rectangles and DEBUG:
-                debugPrint(rectangles)
-                drawingLayer = SimpleCV.DrawingLayer(screenSize)
-                drawRects(rectangles, filtered, drawingLayer)
-                filtered.applyLayers()
-                checkIsHot(rectangles)
-                getDistance(rectangles)
-            elif rectangles:
-                checkIsHot(rectangles)
-                getDistance(rectangles)
-            elif DEBUG:
-                print('No Rectangles')
-            else:
-                distance = 0
-                isHot = False
+    try:
+        while (True):
+    
+            img = SimpleCV.Image(camURL)
+            
+            greenDist = img.colorDistance(SimpleCV.Color.AQUAMARINE)
+            filtered = img - greenDist
+            
+            #TODO Filter out white light
+            
+            blobs = filtered.findBlobs(minsize = 300)
+            
+            if blobs:
+                rectangles = blobs.filter([b.isRectangle(0.3) for b in blobs])
+                if rectangles and DEBUG:
+                    checkIsHot(rectangles)
+                    getDistance(rectangles)
+                    debugPrint(rectangles)
                     
-        if DEBUG: filtered.save(display)
+                    drawingLayer = SimpleCV.DrawingLayer(screenSize)
+                    drawRects(rectangles, filtered, drawingLayer)
+                    filtered.applyLayers()
+                elif rectangles:
+                    checkIsHot(rectangles)
+                    getDistance(rectangles)
+                elif DEBUG:
+                    print('No Rectangles')
+                else:
+                    distance = 0
+                    isHot = False
+                        
+            if DEBUG: filtered.save(display)
+            
+    except:
+        isVisionRunning = False
 
 def debugPrint(rectangles):
+    print('\n')
+    
     if len(rectangles) > 1:
-        rec1H = float(rectangles[-1].height())
-        rec2W = float(rectangles[-2].width())
-        print("ratio: " + str(rec1H / rec2W))
+        # Note, minRectHeight will grab width, minRectWidth will grab height
+        
+        horizontalWidth = float(rectangles[-2].minRectWidth())
+        horizontalHeight = float(rectangles[-2].minRectHeight())
+        verticalWidth = float(rectangles[-1].minRectWidth())
+        verticalHeight = float(rectangles[-1].minRectHeight())
+        
+        #Meant to swap values in case they are/need to be switched
+        if horizontalHeight > horizontalWidth: horizontalHeight, horizontalWidth = horizontalWidth, horizontalHeight
+        if verticalHeight < verticalWidth: verticalHeight, verticalWidth = verticalWidth, verticalHeight
+
+        print("Horizontal rectangle: \n\tWidth: " + str(horizontalWidth) + "\n\tHeight: " + str(horizontalHeight))
+        print("Vertical rectangle: \n\tWidth: " + str(verticalWidth) + "\n\tHeight: " + str(verticalHeight))            
+        print("Ratio (W/H): " + str(horizontalWidth / verticalHeight))
+        
+        # 0.694 = magic number from experiments
+        #Test Code
+        v = (horizontalWidth / verticalHeight) * (1.0/0.694)
+        print("Cos factor: " + str(v))
+        if v > 1:
+            v = 1
+        print('Angle: ' + str(math.acos(v) * (180/3.141592652589793238462643383)))
+
     print("isHot: " + str(isHot))
     print("distance: " + str(distance))
 
 def drawRects(rectangles, filtered, drawingLayer):
-    drawingLayer.centeredRectangle(rectangles[-1].coordinates(), (rectangles[-1].width(), rectangles[-1].height()), SimpleCV.Color.YELLOW, 1, False, -1)
-    if len(rectangles) > 1:
-        drawingLayer.centeredRectangle(rectangles[-2].coordinates(), (rectangles[-2].width(), rectangles[-2].height()), SimpleCV.Color.YELLOW, 1, False, -1) 
+    rectangles[-1].drawMinRect(drawingLayer, (255,0,0), 5, 255)
+    rectangles[-2].drawMinRect(drawingLayer, (255,0,0), 5, 255)
+
     filtered.addDrawingLayer(drawingLayer)
 
 def checkIsHot(rectangles):
     
     global isHot
     if len(rectangles) > 1:
-        rec1H = float(rectangles[-1].height())
-        rec2W = float(rectangles[-2].width())
-        ratio = rec1H / rec2W
+        rec1W = float(rectangles[-2].width())
+        rec2H = float(rectangles[-1].height())
+        ratio = rec1W / rec2H
 
         isHot = (ratio > ratioLow) and (ratio < ratioHigh)
     else:
@@ -108,8 +139,18 @@ def checkIsHot(rectangles):
 def getDistance(rectangles):
     
     global distance
+    #if len(rectangles) > 1:
+        #rec1W = float(rectangles[-2].minRectWidth())
+        #rec2H = float(rectangles[-1].minRectHeight())
+        
+        #if ((rec1W / rec2H) * (64.0 / 47.0)) <= 1.0:
+            
+            #angle = math.acos((rec1W / rec2H) * (64.0 / 47.0))
+            #hypotenuse = rec2H
+            #distance = math.cos(angle) * hypotenuse
+        
     if len(rectangles) > 0:
-        distance = str(rectangles[-1].height())
+        distance = str(rectangles[-1].minRectHeight())
     else:
         distance = 0
     
@@ -143,21 +184,24 @@ def server():
             
             print('Received Data: ' + data)
     
-            if data[0] == "@":
-                #Parse Data
-                command = unicodedata.normalize("NFD", unicode(re.sub(r'[^a-zA-Z0-9]',"", unicode(data))))
+            command = unicodedata.normalize("NFD", unicode(re.sub(r'[^a-zA-Z0-9]',"", unicode(data))))
+    
+            if command != "":
                 
                 #Make Response
                 print("Command: " + command)
                 response = ""
                 
-                if command == "ISHOT":
+                if command == "b":
                     response = str(isHot)
-                elif command == "DISTANCE":
+                elif command == "a":
                     response = str(distance)
-                elif command == "SHUTDOWN" and DEBUG == False:
-                    shutdown()
-                    response = "AS YOU WISH, MY BENEVOLENT DICTATOR"
+                elif command == "c":
+                    if DEBUG:
+                        shutdown()
+                        response = "AS YOU WISH MY BELEVOLENT DICTATOR"
+                    else:
+                        response = "NO"
                 else:
                     response = "INVALID"
                     
