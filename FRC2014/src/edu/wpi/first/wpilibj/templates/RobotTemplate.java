@@ -6,6 +6,7 @@
 /*----------------------------------------------------------------------------*/
 package edu.wpi.first.wpilibj.templates;
 
+import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -36,6 +37,7 @@ public class RobotTemplate extends SimpleRobot {
     Diagnostics diag = new Diagnostics();
     LiveWindow liveWindow = new LiveWindow();
     Timer robotTimer = new Timer();
+    DriverStationLCD LCD = DriverStationLCD.getInstance();
     
     int LX = 1;
     int LY = 2;
@@ -55,7 +57,7 @@ public class RobotTemplate extends SimpleRobot {
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled() && isOperatorControl()){
-            launcher.robotTimer.start();
+            launcher.launcherTimer.start();
             try {
                 socket.disconnect();
             } catch (IOException ex) {
@@ -109,6 +111,10 @@ public class RobotTemplate extends SimpleRobot {
         double potInput;
         double currentPressurePSI;
         double currentTime;
+        
+        String targetPressureString;
+        String currentPressurePSIString;
+        
         robotTimer.start();
         launcher.launcherTimer.start();
         liveWindow.setEnabled(false);
@@ -169,6 +175,13 @@ public class RobotTemplate extends SimpleRobot {
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
             
+           /* targetPressureString = Double.toString(launcher.targetPressure);
+            currentPressurePSIString = Double.toString(launcher.pressureInCylinder());
+            
+            LCD.println(DriverStationLCD.Line.kMain6, Triggers, currentPressurePSIString);
+            LCD.println(DriverStationLCD.Line.kMain6, Triggers, targetPressureString);*/
+            
+            SmartDashboard.putBoolean("hasShot", launcher.hasShot);
             SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
             SmartDashboard.putNumber("Robot Time:", robotTimer.get());
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
@@ -176,6 +189,7 @@ public class RobotTemplate extends SimpleRobot {
             SmartDashboard.putNumber("Pot Sensor", potInput);
             driveStick.clearButtons();
             shootStick.clearButtons();
+            LCD.updateLCD();
         }
         
         

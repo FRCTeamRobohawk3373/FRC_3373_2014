@@ -38,7 +38,6 @@ public class Launcher {
     AnalogChannel pressureSensor;
     Timer launcherTimer = new Timer();
     
-    Timer robotTimer = new Timer();
     
     double lowestVoltagePressure = 0.5;
     double highestVoltagePressure = 4.5;
@@ -107,7 +106,7 @@ public class Launcher {
         if (!isShootThreadRunning) {
             unlockShootingPistons();
             thread.start();
-            hasShot = true;
+            hasShot = true;//we have shot
         }
     }
     public double pressureInCylinder(){
@@ -131,6 +130,7 @@ public class Launcher {
         });
         if (!isReturningThreadRunning) {
             thread.start();
+            hasShot = false;//we haven't shot yet
         }
     }
     public void chargeShootingPistons() {
@@ -138,6 +138,7 @@ public class Launcher {
             public void run() {
                 isThreadRunning = true;
                 if(targetPressure != 0){
+                    currentPressure = pressureInCylinder();
                     while (targetPressure < currentPressure) {
                         currentPressure = pressureInCylinder();
                         exhaustPressure();
@@ -150,13 +151,23 @@ public class Launcher {
                     holdPressure();
                     while(!hasShot){
                         currentPressure = pressureInCylinder();
-                        if ((targetPressure - currentPressure) >= 1){
-                            addPressure();
-                        }
-                        if((currentPressure - targetPressure) <= -1){
+                        while((pressureInCylinder() - targetPressure) >= 2){
                             exhaustPressure();
+//                            try{
+//                                Thread.sleep(1);
+//                            } catch (Exception e){
+//                                //do nothing
+//                            }
+                        }                        
+                        while ((targetPressure - pressureInCylinder()) >= 2){
+                            addPressure();
+//                            try{
+//                                Thread.sleep(1);
+//                            } catch (Exception e){
+//                                //do nothing
+//                            }
                         }
-                        holdPressure();
+                            holdPressure();
                         try{
                             Thread.sleep(5);
                         } catch(Exception x){
@@ -164,7 +175,7 @@ public class Launcher {
                         }
                     }
                     holdPressure();
-                    hasShot = true;
+                    isThreadRunning = false;
                 }
             }
         });
