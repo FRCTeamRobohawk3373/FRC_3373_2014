@@ -67,12 +67,13 @@ def vision():
             if blobs:
                 rectangles = blobs.filter([b.isRectangle(0.3) for b in blobs])
                 if rectangles and DEBUG:
+                    checkIsHot(rectangles)
+                    getDistance(rectangles)
                     debugPrint(rectangles)
+                    
                     drawingLayer = SimpleCV.DrawingLayer(screenSize)
                     drawRects(rectangles, filtered, drawingLayer)
                     filtered.applyLayers()
-                    checkIsHot(rectangles)
-                    getDistance(rectangles)
                 elif rectangles:
                     checkIsHot(rectangles)
                     getDistance(rectangles)
@@ -89,33 +90,26 @@ def vision():
 
 def debugPrint(rectangles):
     print('\n')
+    
     if len(rectangles) > 1:
         # Note, minRectHeight will grab width, minRectWidth will grab height
-        #Horozontal
-        rec1W = float(rectangles[-2].minRectWidth())
-        rec1H = float(rectangles[-2].minRectHeight())
         
-        if rec1W < rec1H:
-            temp = rec1W
-            rec1W = rec1H
-            rec1H = temp
+        horizontalWidth = float(rectangles[-2].minRectWidth())
+        horizontalHeight = float(rectangles[-2].minRectHeight())
+        verticalWidth = float(rectangles[-1].minRectWidth())
+        verticalHeight = float(rectangles[-1].minRectHeight())
         
-        #Vertical
-        rec2W = float(rectangles[-1].minRectWidth())
-        rec2H = float(rectangles[-1].minRectHeight())
-        
-        if rec2H < rec2W:
-            temp = rec2H
-            rec2H = rec2W
-            rec2W = temp
-        
-        print(rec1W, rec2H)
-        print("ratio: " + str(rec1W/ rec2H))
-        print("Horizontal rectangle: \n\tWidth: " + str(rec1W) + "\n\tHeight: " + str(rec1H))
-        print("Vertical rectangle: \n\tWidth: " + str(rec2W) + "\n\tHeight: " + str(rec2H))
+        #Meant to swap values in case they are/need to be switched
+        if horizontalHeight > horizontalWidth: horizontalHeight, horizontalWidth = horizontalWidth, horizontalHeight
+        if verticalHeight < verticalWidth: verticalHeight, verticalWidth = verticalWidth, verticalHeight
+
+        print("Horizontal rectangle: \n\tWidth: " + str(horizontalWidth) + "\n\tHeight: " + str(horizontalHeight))
+        print("Vertical rectangle: \n\tWidth: " + str(verticalWidth) + "\n\tHeight: " + str(verticalHeight))            
+        print("Ratio (W/H): " + str(horizontalWidth / verticalHeight))
         
         # 0.694 = magic number from experiments
-        v = (rec1W / rec2H) * (1.0/0.694)
+        #Test Code
+        v = (horizontalWidth / verticalHeight) * (1.0/0.694)
         print("Cos factor: " + str(v))
         if v > 1:
             v = 1
@@ -125,9 +119,6 @@ def debugPrint(rectangles):
     print("distance: " + str(distance))
 
 def drawRects(rectangles, filtered, drawingLayer):
-#    drawingLayer.centeredRectangle(rectangles[-1].coordinates(), (rectangles[-1].minRectWidth(), rectangles[-1].minRectHeight()), SimpleCV.Color.YELLOW, 1, False, -1)
-#    if len(rectangles) > 1:
-#        drawingLayer.centeredRectangle(rectangles[-2].coordinates(), (rectangles[-2].minRectWidth(), rectangles[-2].minRectHeight()), SimpleCV.Color.YELLOW, 1, False, -1) 
     rectangles[-1].drawMinRect(drawingLayer, (255,0,0), 5, 255)
     rectangles[-2].drawMinRect(drawingLayer, (255,0,0), 5, 255)
 
@@ -148,17 +139,17 @@ def checkIsHot(rectangles):
 def getDistance(rectangles):
     
     global distance
-    if len(rectangles) > 1:
-        rec1W = float(rectangles[-2].minRectWidth())
-        rec2H = float(rectangles[-1].minRectHeight())
+    #if len(rectangles) > 1:
+        #rec1W = float(rectangles[-2].minRectWidth())
+        #rec2H = float(rectangles[-1].minRectHeight())
         
-        if ((rec1W / rec2H) * (64.0 / 47.0)) <= 1.0:
+        #if ((rec1W / rec2H) * (64.0 / 47.0)) <= 1.0:
             
-            angle = math.acos((rec1W / rec2H) * (64.0 / 47.0))
-            hypotenuse = rec2H
-            distance = math.cos(angle) * hypotenuse
+            #angle = math.acos((rec1W / rec2H) * (64.0 / 47.0))
+            #hypotenuse = rec2H
+            #distance = math.cos(angle) * hypotenuse
         
-    elif len(rectangles) > 0:
+    if len(rectangles) > 0:
         distance = str(rectangles[-1].minRectHeight())
     else:
         distance = 0
