@@ -1,12 +1,13 @@
+package edu.wpi.first.wpilibj.templates;
+
 /*----------------------------------------------------------------------------*/
 /* Copyright (c) FIRST 2008. All Rights Reserved.                             */
 /* Open Source Software - may be modified and shared by FRC teams. The code   */
 /* must be accompanied by the FIRST BSD license file in the root directory of */
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
-package edu.wpi.first.wpilibj.templates;
 
-import edu.wpi.first.wpilibj.DriverStationLCD;
+
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -37,7 +38,7 @@ public class RobotTemplate extends SimpleRobot {
     Diagnostics diag = new Diagnostics();
     LiveWindow liveWindow = new LiveWindow();
     Timer robotTimer = new Timer();
-    DriverStationLCD LCD = DriverStationLCD.getInstance();
+    Deadband deadband = new Deadband();
     
     int LX = 1;
     int LY = 2;
@@ -45,6 +46,7 @@ public class RobotTemplate extends SimpleRobot {
     int RX = 4;
     int RY = 5;
     int DP = 6;
+    
     
 
     public void autonomous() {
@@ -56,8 +58,9 @@ public class RobotTemplate extends SimpleRobot {
      */
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
-        if (isDisabled() && isOperatorControl()){
-            launcher.launcherTimer.start();
+        if (isDisabled()){
+            pickup.isEnabled = false;
+            launcher.robotTimer.start();
             try {
                 socket.disconnect();
             } catch (IOException ex) {
@@ -65,38 +68,70 @@ public class RobotTemplate extends SimpleRobot {
             }
         }
         
-        while (isEnabled() && isOperatorControl()) {
+        if (isEnabled() && isOperatorControl()){
             robotTimer.start();
             launcher.launcherTimer.start();
+            pickup.isEnabled = true;            
+        }
+        
+        while (isEnabled() && isOperatorControl()) {
             if (!socket.isConnected){
                 System.out.println("Trying to connect");
-                //socket.connect();
+                socket.connect();
             }
-            
-            //socket.globalVariableUpdateAndListener();
-            //SmartDashboard.putNumber("Distance", socket.distanceDouble);
-            //SmartDashboard.putBoolean("Is HOT", socket.isHot);
-            //SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
+                        
             try {
                 Thread.sleep(100L);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-            drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
-            if (driveStick.isAPushed()) {
-                System.out.println("A Presser");
-                //launcher.shootThread();
+            
+            socket.globalVariableUpdateAndListener();
+
+            /*********"*****
+             * Driver Code *
+             ***************/            
+            if (driveStick.isAPushed()){               
+                System.out.println("Switching Orientation");
+                drive.orientationSwitcher();
             }
             
-            pickup.goToPos(30, .5);
-            System.out.println("Pickup Spot: " + pickup.getPickupPos());
+            drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
 
+            if (deadband.zero(shootStick.getRawAxis(LY), .1) != 0){
+                pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY), pickup.targetPos);
+            }
             
-
+            System.out.println("Trigger Value: " + driveStick.getRawAxis(Triggers));
             
+                       
+            /***********
+             * Shooter *
+             ***********/
+            if (shootStick.isBPushed()){
+                pickup.targetPos = 30;
+            }
+                
+            if (shootStick.isYPushed()){
+                pickup.targetPos = 120;
+            }
+            
+            /*****************
+             * Miscellaneous *
+             *****************/
+            pickup.goToPos(.5); 
+            
+            SmartDashboard.putNumber("Distance", socket.distanceDouble);
+            SmartDashboard.putBoolean("Is HOT", socket.isHot);
+            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             
             driveStick.clearButtons();
             shootStick.clearButtons();
+        }
+        try {
+            socket.sendString('c');
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -111,10 +146,6 @@ public class RobotTemplate extends SimpleRobot {
         double potInput;
         double currentPressurePSI;
         double currentTime;
-        
-        String targetPressureString;
-        String currentPressurePSIString;
-        
         robotTimer.start();
         launcher.launcherTimer.start();
         liveWindow.setEnabled(false);
@@ -175,13 +206,6 @@ public class RobotTemplate extends SimpleRobot {
             analogInput = launcher.pressureSensor.getVoltage();
             potInput = launcher.potSensor.getVoltage();
             
-           /* targetPressureString = Double.toString(launcher.targetPressure);
-            currentPressurePSIString = Double.toString(launcher.pressureInCylinder());
-            
-            LCD.println(DriverStationLCD.Line.kMain6, Triggers, currentPressurePSIString);
-            LCD.println(DriverStationLCD.Line.kMain6, Triggers, targetPressureString);*/
-            
-            SmartDashboard.putBoolean("hasShot", launcher.hasShot);
             SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
             SmartDashboard.putNumber("Robot Time:", robotTimer.get());
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
@@ -189,7 +213,6 @@ public class RobotTemplate extends SimpleRobot {
             SmartDashboard.putNumber("Pot Sensor", potInput);
             driveStick.clearButtons();
             shootStick.clearButtons();
-            LCD.updateLCD();
         }
         
         
