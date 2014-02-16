@@ -31,6 +31,7 @@ public class Pickup {
     double diagSpeed = .5;
     static boolean isAtPosition = false;
     double targetPos = getPickupPos();
+    boolean isGoToRunning = false;
 
     public void grabBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
@@ -50,6 +51,7 @@ public class Pickup {
     public void goToPos(final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
+                isGoToRunning = true;
                 isAtPosition = false;
                 while (deadband.zero(Math.abs(getPickupPos() - targetPos), angleTolerance, 1)){
                         
@@ -59,9 +61,12 @@ public class Pickup {
                 }
                 actuateTalon.set(0);
                 isAtPosition = true;
+                isGoToRunning = false;
             }
         });
-        thread.start();
+        if (!isGoToRunning){
+            thread.start();
+        }
     }
     
     /**
