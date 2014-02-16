@@ -25,6 +25,7 @@ public class Drive {
     RobotDrive mechanum = new RobotDrive(1,2,3,4);
     Deadband deadband = new Deadband();
     double speed = .50; //default movement speed
+    boolean isShooterFront = true;
     /****
      * @param driveLX X axis of the left joystick on the drive controller
      * @param driveRX X Axis of the right joystick on the drive controller
@@ -38,11 +39,10 @@ public class Drive {
         mechanum.setSafetyEnabled(false);
     }
     
-    public void orientationSwitcher(boolean isTrueFrontRequested){
-        boolean isShooterFront = true;
-        if (isTrueFrontRequested && isShooterFront){
+    public void orientationSwitcher(){
+        if (isShooterFront){
             isShooterFront = false;
-        } else if (isTrueFrontRequested && !isShooterFront){
+        } else if (!isShooterFront){
             isShooterFront = false;
         }
         if (isShooterFront){
@@ -65,4 +65,6 @@ public class Drive {
             speed = .5;
         }
     }
+
+
 }

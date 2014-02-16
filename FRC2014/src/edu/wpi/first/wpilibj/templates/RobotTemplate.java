@@ -59,8 +59,6 @@ public class RobotTemplate extends SimpleRobot {
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled()){
-            pickup.isEnabled = false;
-            launcher.robotTimer.start();
             try {
                 socket.disconnect();
             } catch (IOException ex) {
@@ -71,7 +69,6 @@ public class RobotTemplate extends SimpleRobot {
         if (isEnabled() && isOperatorControl()){
             robotTimer.start();
             launcher.launcherTimer.start();
-            pickup.isEnabled = true;            
         }
         
         while (isEnabled() && isOperatorControl()) {
@@ -99,7 +96,7 @@ public class RobotTemplate extends SimpleRobot {
             drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
 
             if (deadband.zero(shootStick.getRawAxis(LY), .1) != 0){
-                pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY), pickup.targetPos);
+                pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY));
             }
             
             System.out.println("Trigger Value: " + driveStick.getRawAxis(Triggers));
@@ -130,6 +127,7 @@ public class RobotTemplate extends SimpleRobot {
         }
         try {
             socket.sendString('c');
+            socket.disconnect();
         } catch (IOException ex) {
             ex.printStackTrace();
         }

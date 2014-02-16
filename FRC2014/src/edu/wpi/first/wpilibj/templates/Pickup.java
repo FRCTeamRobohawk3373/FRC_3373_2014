@@ -30,6 +30,7 @@ public class Pickup {
     final double angleTolerance = 15;
     double diagSpeed = .5;
     static boolean isAtPosition = false;
+    double targetPos = getPickupPos();
 
     public void grabBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
@@ -46,14 +47,14 @@ public class Pickup {
      * @param pos target position for the arm to go to
      * @param speed speed the arm should move at
      */
-    public void goToPos(final double pos, final double speed){
+    public void goToPos(final double speed){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 isAtPosition = false;
-                while (deadband.zero(Math.abs(getPickupPos() - pos), angleTolerance, 1)){
+                while (deadband.zero(Math.abs(getPickupPos() - targetPos), angleTolerance, 1)){
                         
                     System.out.println(getPickupPos());
-                    goToAngle(pos, getPickupPos(), speed);
+                    goToAngle(targetPos, getPickupPos(), speed);
                     
                 }
                 actuateTalon.set(0);
@@ -106,4 +107,8 @@ public class Pickup {
         return getPickupPos();
     }
 
+    public double moveAccordingToJoystick(double joystickInput){
+        double joystickPos = targetPos + deadband.zero(joystickInput, .1);
+        return joystickPos;
+    }
 }
