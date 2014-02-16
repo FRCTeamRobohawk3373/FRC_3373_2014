@@ -42,7 +42,7 @@ public class RobotTemplate extends SimpleRobot {
     
     int LX = 1;
     int LY = 2;
-    int Triggers = 3;
+    int triggers = 3;
     int RX = 4;
     int RY = 5;
     int DP = 6;
@@ -93,24 +93,60 @@ public class RobotTemplate extends SimpleRobot {
                 drive.orientationSwitcher();
             }
             
-            drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
-
-            if (deadband.zero(shootStick.getRawAxis(LY), .1) != 0){
-                pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY));
+            if (driveStick.isXPushed()){
+                pickup.targetPos = 30;
             }
             
-            System.out.println("Trigger Value: " + driveStick.getRawAxis(Triggers));
+            if (driveStick.isYPushed()){
+                pickup.targetPos = 120;
+            }
+            
+            if (driveStick.getRawAxis(triggers) < -.3){
+                pickup.grabBall();
+            }
+            
+            if (driveStick.getRawAxis(triggers) > .3){
+                pickup.releaseBall();
+            }
+                
+            drive.speedModifier(driveStick.isLBHeld(), driveStick.isRBHeld());
+            
+            drive.drive(driveStick.getRawAxis(LX), driveStick.getRawAxis(RX), driveStick.getRawAxis(LY));
+
+
+            
+            System.out.println("Trigger Value: " + driveStick.getRawAxis(triggers));
             
                        
             /***********
              * Shooter *
              ***********/
+            if (shootStick.isRBPushed()){
+                pickup.grabBall();
+            }
+            
+            if (shootStick.isLBPushed()){
+                pickup.releaseBall();
+            }
+            
+            if (deadband.zero(shootStick.getRawAxis(LY), .1) != 0){
+                pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY));
+            }
+            
             if (shootStick.isBPushed()){
-                pickup.targetPos = 30;
+                //TODO: PREDEF CHARGEPOSA
             }
                 
             if (shootStick.isYPushed()){
-                pickup.targetPos = 120;
+                //TODO: PREDEF CHARGEPOSB
+            }
+            
+            if (shootStick.isXPushed()){
+                //TODO: VISION CHARGEPOS
+            }
+            
+            if (shootStick.isAPushed()){
+                launcher.shoot();
             }
             
             /*****************
