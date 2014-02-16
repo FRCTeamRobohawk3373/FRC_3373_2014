@@ -47,6 +47,10 @@ public class RobotTemplate extends SimpleRobot {
     int RY = 5;
     int DP = 6;
     
+    double[] distanceArray = new double[] {5.0, 10.0, 15.0, 20.0, 25.0};
+    double[] pressureArray = new double[]{};
+    double[] pixelArraay = new double[]{};
+    
     
 
     public void autonomous() {
@@ -94,11 +98,11 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if (driveStick.isXPushed()){
-                pickup.targetPos = 30;
+                pickup.targetPos = pickup.pickupVoltage;
             }
             
             if (driveStick.isYPushed()){
-                pickup.targetPos = 120;
+                pickup.targetPos = pickup.dropoffVoltage;
             }
             
             if (driveStick.getRawAxis(triggers) < -.3){
@@ -238,6 +242,8 @@ public class RobotTemplate extends SimpleRobot {
                 pickup.doNothingBall();
             }
             
+            pickup.angleDiag(shootStick.isAPushed(), shootStick.isBPushed());
+            
             currentTime = robotTimer.get();
             
             currentPressurePSI = launcher.pressureInCylinder();
@@ -249,6 +255,7 @@ public class RobotTemplate extends SimpleRobot {
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
             SmartDashboard.putNumber("Pressure Voltage", analogInput);
             SmartDashboard.putNumber("Pot Sensor", potInput);
+            SmartDashboard.putNumber("Pickup Position", pickup.getPickupPos());
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
