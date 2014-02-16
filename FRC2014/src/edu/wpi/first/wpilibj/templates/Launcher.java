@@ -25,9 +25,9 @@ public class Launcher {
     DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 5, 6);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
 
     
-    Solenoid pressureSolenoidR = new Solenoid(1, 8);//not the final port number
+    Solenoid pressureSolenoidR = new Solenoid(2, 2);//not the final port number
     Solenoid pressureSolenoidL = new Solenoid(2, 1);
-    Solenoid exhaustSolenoid = new Solenoid(2, 3);//defaults to exhaust
+    Solenoid exhaustSolenoid = new Solenoid(2, 3);
     
     //Solenoid testLockingSolenoid = new Solenoid(8);//do we need this?
     
@@ -102,7 +102,8 @@ public class Launcher {
                     addPressure();
                 }
                 holdPressure();
-                isShootThreadRunning = false;
+                returnCatapultToHome();//if we decide we don't want automatic returning, 
+                
             }
         });
         if (!isShootThreadRunning) {
@@ -128,6 +129,7 @@ public class Launcher {
                 lockShootingPistons();
                 holdPressure();
                 isReturningThreadRunning = false;
+                isShootThreadRunning = false;
             }
         });
         if (!isReturningThreadRunning) {

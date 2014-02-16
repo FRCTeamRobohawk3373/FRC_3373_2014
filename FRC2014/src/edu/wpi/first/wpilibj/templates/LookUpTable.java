@@ -15,26 +15,25 @@ import java.util.Hashtable;
  */
 public class LookUpTable {
 
-    public double lookUpValue(double currentDistance, double[] distanceArray, double[] valueArray){ //distanceArray is an array that corresponds to distance from the target from the wall and valueArray is the values corresponding to the distance in the distanceArray
+    public double lookUpValue(double currentValue, double[] independentArray, double[] dependentArray){ //independentArray is an array that corresponds to distance from the target from the wall and dependentArray is the values corresponding to the distance in the independentArray
         int i;
         double difference;
         double percentage;//this is used in the interpelation code
         double result;        
-        if(currentDistance < distanceArray[distanceArray.length - 1]){ //makes sure that we are within the range of the distanceArray
-            for (i = 0; i < distanceArray.length; i++){
-                if(currentDistance == distanceArray[i]){//checks our current distance to see if it matches distance(i) in distanceArray
-                    return valueArray[i];
-                } else if(currentDistance > distanceArray[i] && currentDistance < distanceArray[i+1]){//if current distance is inbetween distance(i)and the next distance(i+1) in distanceArray
-                    difference = distanceArray[i+1] - distanceArray[i];
-                    percentage = (currentDistance - distanceArray[i]) / difference;
-                    result = valueArray[i] + ((valueArray[i+1] - valueArray[i]) * percentage);
+        if(currentValue < independentArray[independentArray.length - 1]){ //makes sure that we are within the range of the independentArray
+            for (i = 0; i < independentArray.length; i++){
+                if(currentValue == independentArray[i]){//checks our current distance to see if it matches distance(i) in independentArray
+                    return dependentArray[i];
+                } else if(currentValue > independentArray[i] && currentValue < independentArray[i+1]){//if current distance is inbetween distance(i)and the next distance(i+1) in independentArray
+                    difference = independentArray[i+1] - independentArray[i];
+                    percentage = (currentValue - independentArray[i]) / difference;
+                    result = dependentArray[i] + ((dependentArray[i+1] - dependentArray[i]) * percentage);
                     return result;
                 }
             }
         } else {
             return 0;//if we are out of range don't do anything!
         }
-        String neverGetsHere = "YOU WILL NEVER LEAVE";
         return 0;//we should never get here
     }
 }
