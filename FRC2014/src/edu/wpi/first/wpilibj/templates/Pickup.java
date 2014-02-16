@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
@@ -25,8 +26,10 @@ public class Pickup {
     
     DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 7, 8);
     
-    double maxAngle = 120;
     double maxVoltage = 5;
+    double minVoltage = 0;
+    double pickupVoltage = 0;
+    double dropoffVoltage = 5;
     final double angleTolerance = 15;
     double diagSpeed = .5;
     static boolean isAtPosition = false;
@@ -75,7 +78,7 @@ public class Pickup {
      */
     
     public double getPickupPos(){
-        double angle = pickupPot.getVoltage() * (maxAngle/maxVoltage);
+        double angle = pickupPot.getVoltage();
         return angle;
     }
     
@@ -101,15 +104,14 @@ public class Pickup {
      * @param down button press telling the arm to move down
      * @return returns arm position in degrees 
      */
-    public double angleDiag(boolean up, boolean down){
+    public void angleDiag(boolean up, boolean down){
         if (up && !down){
-            //actuateTalon.set(diagSpeed);
+            actuateTalon.set(diagSpeed);
         } else if (down && !up){
-            //actuateTalon.set(-diagSpeed);
+            actuateTalon.set(-diagSpeed);
         } else {
-            //actuateTalon.set(0);
+            actuateTalon.set(0);
         }
-        return getPickupPos();
     }
 
     public double moveAccordingToJoystick(double joystickInput){
