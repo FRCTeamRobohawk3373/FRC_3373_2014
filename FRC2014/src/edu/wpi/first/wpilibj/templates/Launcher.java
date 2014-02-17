@@ -22,22 +22,18 @@ import edu.wpi.first.wpilibj.smartdashboard.*;
  */
 public class Launcher {
 
-    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 5, 6);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
+    DoubleSolenoid lockingSolenoids = new DoubleSolenoid(2, 4, 1);//currently in solenoid port 1, 8 for testing, TODO: change back to ports 5,6
 
     
-    Solenoid pressureSolenoidR = new Solenoid(2, 2);//not the final port number
-    Solenoid pressureSolenoidL = new Solenoid(2, 1);
-    Solenoid exhaustSolenoid = new Solenoid(2, 3);
+    Solenoid pressureSolenoidR = new Solenoid(1, 5);
+    Solenoid pressureSolenoidL = new Solenoid(1, 2);
+    Solenoid exhaustSolenoid = new Solenoid(1, 6);
     
-    //Solenoid testLockingSolenoid = new Solenoid(8);//do we need this?
+    Solenoid retractingSolenoidL = new Solenoid(1, 3);
+    Solenoid retractingSolenoidR = new Solenoid(1, 7);
     
-    Solenoid retractingSolenoidL = new Solenoid(2, 4);
-    //Solenoid retractingSolenoidR = new Solenoid(2, 4);
-    
-    DigitalInput isPistonHome = new DigitalInput(1); //curently in I/O port 1 for testing, when true the piston is home and ready for launching algorithm
-
-    AnalogChannel potSensor = new AnalogChannel(1);
     AnalogChannel pressureSensor;
+    
     Timer launcherTimer = new Timer();
     
     

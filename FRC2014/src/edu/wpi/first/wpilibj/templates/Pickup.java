@@ -20,11 +20,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * @author Jamie
  */
 public class Pickup {
-    AnalogChannel pickupPot = new AnalogChannel(5); //Voltage from one to five
+    AnalogChannel pickupPot = new AnalogChannel(1); //Voltage from one to five
     Talon actuateTalon = new Talon(5);
     Deadband deadband = new Deadband();
     
-    DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 7, 8);
+    DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 2, 3);
     
     double maxVoltage = 5;
     double minVoltage = 0;

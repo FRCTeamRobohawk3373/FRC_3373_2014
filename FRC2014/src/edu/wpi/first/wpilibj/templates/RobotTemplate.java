@@ -186,7 +186,6 @@ public class RobotTemplate extends SimpleRobot {
         * Shooter Test Code *
         ********************/
         double analogInput;
-        double potInput;
         double currentPressurePSI;
         double currentTime;
         robotTimer.start();
@@ -251,13 +250,12 @@ public class RobotTemplate extends SimpleRobot {
             
             currentPressurePSI = launcher.pressureInCylinder();
             analogInput = launcher.pressureSensor.getVoltage();
-            potInput = launcher.potSensor.getVoltage();
+
             
             SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
             SmartDashboard.putNumber("Robot Time:", robotTimer.get());
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
             SmartDashboard.putNumber("Pressure Voltage", analogInput);
-            SmartDashboard.putNumber("Pot Sensor", potInput);
             SmartDashboard.putNumber("Pickup Position", pickup.getPickupPos());
             driveStick.clearButtons();
             shootStick.clearButtons();
