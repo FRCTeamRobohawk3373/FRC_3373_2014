@@ -49,12 +49,13 @@ public class PiSocket {
     public void connect() {
         Thread thread = new Thread(new Runnable(){
             public void run(){ 
+                System.out.println("Trying to Connect");
                 isConnectThreadRunning = true;
                 try {
-                    connection = (SocketConnection) Connector.open("socket://10.33.73.104:3373", Connector.READ_WRITE, true);
+                    connection = (SocketConnection) Connector.open("socket://10.33.73.3:3373", Connector.READ_WRITE, true);
                     System.out.println("Connected");
                 } catch (IOException ex) {
-                    ex.printStackTrace();
+                    ex.printStackTrace();   
                     System.out.println("Connection Failed");
                 }
 
@@ -77,7 +78,7 @@ public class PiSocket {
         try {
             os.write('\n');
             isConnected = true;
-        } catch (IOException ex){
+        } catch (Exception ex){
             isConnected = false;
             ex.printStackTrace();
         }
@@ -96,6 +97,7 @@ public class PiSocket {
         try {
             os.flush();
             os.write(message);
+            //System.out.println("Message: " + message);
         } catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -162,8 +164,8 @@ public class PiSocket {
                             receiveString = getRawData();
                             
                             receiveConverter(true, receiveString);
-                            System.out.println("Distance: " + distanceDouble);
-                            System.out.println("ISHOT: " + isHot);
+                            //System.out.println("Distance: " + distanceDouble);
+                            //System.out.println("ISHOT: " + isHot);
                         } catch (IOException ex) {
                             connect();
                             ex.printStackTrace();

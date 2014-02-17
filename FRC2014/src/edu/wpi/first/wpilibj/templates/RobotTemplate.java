@@ -8,6 +8,7 @@ package edu.wpi.first.wpilibj.templates;
 /*----------------------------------------------------------------------------*/
 
 
+import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -40,6 +41,7 @@ public class RobotTemplate extends SimpleRobot {
     Timer robotTimer = new Timer();
     Deadband deadband = new Deadband();
     LookUpTable lookup = new LookUpTable();
+    DriverStationLCD dsLCD = DriverStationLCD.getInstance();
     
     int LX = 1;
     int LY = 2;
@@ -48,10 +50,9 @@ public class RobotTemplate extends SimpleRobot {
     int RY = 5;
     int DP = 6;
     
-    double[] distanceArray = new double[] {5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f, 17f, 18f, 19f, 20f, 21f, 22f, 23f, 24f, 25f};
+    double[] distanceArray = new double[] {25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
     double[] pressureArray = new double[]{};
-    double[] pixelArray = new double[]{318, 273, 238,  215, 193, 177, 163, 150, 141, 131, 123, 116, 110, 102, 98, 95, 90, 87, 84, 81, 78};
-    
+    double[] pixelArray = new double[]{78, 81, 84, 87, 90, 95, 98, 1002, 110, 116, 123, 131, 141, 150, 163, 177, 193, 215, 238, 273, 318};
     double safeZoneForShooting = 2.0;//must find a value for when the ball grabber is out of the way and we can shoot
 
     public void autonomous() {
@@ -78,16 +79,17 @@ public class RobotTemplate extends SimpleRobot {
         
         while (isEnabled() && isOperatorControl()) {
             if (!socket.isConnected){
-                System.out.println("Trying to connect");
                 socket.connect();
             }
-                        
+            socket.isConnected();
             try {
                 Thread.sleep(10L);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-            SmartDashboard.putNumber("Distance: ", lookup.lookUpValue(socket.distanceDouble, pixelArray, distanceArray));
+            if (socket.isConnected){
+                System.out.println("CalculatedDistance: " + lookup.lookUpValue(socket.distanceDouble, pixelArray, distanceArray));
+            }
             socket.globalVariableUpdateAndListener();
 
             /*********"*****
@@ -120,7 +122,6 @@ public class RobotTemplate extends SimpleRobot {
 
 
             
-            System.out.println("Trigger Value: " + driveStick.getRawAxis(triggers));
             
                        
             /***********
@@ -166,10 +167,11 @@ public class RobotTemplate extends SimpleRobot {
              *****************/
             pickup.goToPos(.5); 
             
+            SmartDashboard.putBoolean("isConnected: ", socket.isConnected);
             SmartDashboard.putNumber("Distance", socket.distanceDouble);
             SmartDashboard.putBoolean("Is HOT", socket.isHot);
             SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
-            
+            dsLCD.updateLCD();
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
