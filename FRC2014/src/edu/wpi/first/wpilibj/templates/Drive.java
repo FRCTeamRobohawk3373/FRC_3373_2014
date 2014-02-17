@@ -38,7 +38,9 @@ public class Drive {
                 math.pow(deadband.zero(driveLY, .1), 3)*speed, 0);
         mechanum.setSafetyEnabled(false);
     }
-    
+    /**
+     * Method that inverts motor speed to allow which way is "front" to switch
+     */
     public void orientationSwitcher(){
         if (isShooterFront){
             isShooterFront = false;
@@ -51,7 +53,11 @@ public class Drive {
             speed = -Math.abs(speed);
         }
     }
-    
+    /**
+     * Allows for faster or slower than normal movement, based on button presses
+     * @param sniperButton boolean that corresponds to desired slower speed, held button on controller
+     * @param turboButton boolean that corresponds to desired faster speed, held button on controller
+     */
     public void speedModifier(boolean sniperButton, boolean turboButton){
         if (sniperButton) {
             speed *= .5;

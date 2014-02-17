@@ -35,20 +35,27 @@ public class Pickup {
     static boolean isAtPosition = false;
     double targetPos = getPickupPos();
     boolean isGoToRunning = false;
-
+    /**
+     * Method to close pickup up arms and grab ball
+     */
     public void grabBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kForward);
     }
+    /**
+     * Method to release ball and open pickup arms
+     */
     public void releaseBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kReverse);
     }
+    /**
+     * Method to relax hold on ball
+     */
     public void doNothingBall(){
         ballGrabberSolenoid.set(DoubleSolenoid.Value.kOff);
     }
     
     /**
      * Use this method to control the pickup arm. Threaded function
-     * @param pos target position for the arm to go to
      * @param speed speed the arm should move at
      */
     public void goToPos(final double speed){
@@ -75,8 +82,7 @@ public class Pickup {
     /**
      * Method to convert potentiometer voltage into degrees
      * @return returns degrees
-     */
-    
+     */    
     public double getPickupPos(){
         double angle = pickupPot.getVoltage();
         return angle;
@@ -102,7 +108,6 @@ public class Pickup {
      * Diagnostic method to get baseline measurements
      * @param up button press telling the arm to move up
      * @param down button press telling the arm to move down
-     * @return returns arm position in degrees 
      */
     public void angleDiag(boolean up, boolean down){
         if (up && !down){
@@ -113,7 +118,11 @@ public class Pickup {
             actuateTalon.set(0);
         }
     }
-
+    /**
+     * Method to control pickup arm movement according to joystick double input
+     * @param joystickInput double value to set movement speed for manual control. Use a Joystick getRawAxis()
+     * @return returns target speed
+     */
     public double moveAccordingToJoystick(double joystickInput){
         double joystickPos = targetPos + deadband.zero(joystickInput, .1);
         return joystickPos;

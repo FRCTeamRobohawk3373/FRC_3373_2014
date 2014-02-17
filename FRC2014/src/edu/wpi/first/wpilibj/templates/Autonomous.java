@@ -16,6 +16,10 @@ public class Autonomous {
     Drive drive = new Drive();
     Launcher launcher = new Launcher();
     Pickup pickup = new Pickup();
+    /**
+     * Method that moves the robot forward for X amount of time to get into auto zone
+     * @param moveTime time in milliseconds for the robot to move forward
+     */
     public void enterAutoBonusZone(long moveTime){
         drive.drive(0, 0, .75);
         try {
@@ -25,7 +29,10 @@ public class Autonomous {
         }
         drive.drive(0, 0, 0);
     }
-    
+    /**
+     * method to shoot during autonomous
+     * @param isHot checks whether the vision target is hot for bonus points, fed in from server code
+     */
     public void shootAuto(boolean isHot){
         pickup.targetPos = pickup.minVoltage;
         pickup.goToPos(.5);
@@ -38,7 +45,7 @@ public class Autonomous {
                 ex.printStackTrace();
             }
         }
-        //launcher.();
+        launcher.shoot();
         
     }
 }

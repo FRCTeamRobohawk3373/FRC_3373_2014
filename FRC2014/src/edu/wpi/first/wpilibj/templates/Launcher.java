@@ -56,7 +56,9 @@ public class Launcher {
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
     boolean isReturningThreadRunning = false;
-
+    /**
+     * Constructor that is here for no reason but we will not remove it. ITS BLACK MAGIC
+     */
     public Launcher() {
         this.pressureSensor = new AnalogChannel(2);
     }

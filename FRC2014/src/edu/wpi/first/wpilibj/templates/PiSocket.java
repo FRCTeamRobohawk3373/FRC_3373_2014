@@ -35,7 +35,7 @@ public class PiSocket {
     static boolean isShutdownRequested = false;
     boolean isUpdaterThreadRunning = false;
     String receiveString = null;
-    double distanceDouble;
+    double pixelDistanceDouble;
     boolean isHot;
     boolean isDistanceValid;
     int timeoutCounter = 0;
@@ -45,7 +45,9 @@ public class PiSocket {
     boolean isDistanceExpected = false;
     boolean isConnectThreadRunning = false;
 
-    
+    /**
+     * Method to connect to socket server and initialize IO streams
+     */
     public void connect() {
         Thread thread = new Thread(new Runnable(){
             public void run(){ 
@@ -73,7 +75,9 @@ public class PiSocket {
             thread.start();
         }
     }
-    
+    /**
+     * Tests whether the connection is active by sending a null value
+     */
     public void isConnected(){
         try {
             os.write('\n');
@@ -83,17 +87,27 @@ public class PiSocket {
             ex.printStackTrace();
         }
     }
-    
-    public void disconnect() throws IOException {
-        is.close();
-        os.close();
-        connection.close();
-        isConnected = false;
-        System.out.println("Disconnected");
+    /**
+     * Disconnects cRIO from PI socket
+     */
+    public void disconnect() {
+        try{
+            is.close();
+            os.close();
+            connection.close();
+            isConnected = false;
+            System.out.println("Disconnected");
+        } catch (Exception ex){
+            System.out.println("Disconnect Failed");
+            ex.printStackTrace();
+        }
 
     }
-
-    public void sendString(char message) throws IOException{
+    /**
+     * Sends a char message to the PI to get data
+     * @param message message as a char that asks for pixel isHot (a), pixel distance (b), and shutdown (c)
+     */
+    public void sendChar(char message) {
         try {
             os.flush();
             os.write(message);
@@ -143,7 +157,9 @@ public class PiSocket {
         
         return serverChar;
     }*/
-    
+    /**
+     * Method that controls takes all input and parses to give readable data in main thread
+     */
     public void globalVariableUpdateAndListener(){
         Thread thread = new Thread(new Runnable(){
             public void run() {
@@ -154,22 +170,19 @@ public class PiSocket {
                         try {
                             
                             Thread.sleep(1000L);
-                            sendString('a');
+                            sendChar('a');
                             receiveString = getRawData();
                             receiveConverter(false, receiveString);
                             
                             Thread.sleep(100L);
-                            sendString('b');
+                            sendChar('b');
                             
                             receiveString = getRawData();
                             
                             receiveConverter(true, receiveString);
                             //System.out.println("Distance: " + distanceDouble);
                             //System.out.println("ISHOT: " + isHot);
-                        } catch (IOException ex) {
-                            connect();
-                            ex.printStackTrace();
-                        } catch (InterruptedException ex) {
+                        } catch (Exception ex) {
                             ex.printStackTrace();
                         }
                     } else {
@@ -177,12 +190,8 @@ public class PiSocket {
                     }
                 
                 }   
-                try {
-                    sendString('c');
-                    disconnect();
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
+                sendChar('c');
+                disconnect();
                 isUpdaterThreadRunning = false;
             }
         });
@@ -192,13 +201,17 @@ public class PiSocket {
         }
         
     }
-    
+    /**
+     * Method that takes receives data and allocates to either isHot or distance
+     * @param flipFlop boolean to tell method whether a double or boolean is expected, true means double expected
+     * @param receivedString String received from socket server after parsing
+     */
     public void receiveConverter(boolean flipFlop, String receivedString){
         if (flipFlop){
             try {
                 if (!receivedString.equals("0")){
                     receivedString = receivedString.trim();
-                    distanceDouble = Double.parseDouble(receivedString);
+                    pixelDistanceDouble = Double.parseDouble(receivedString);
                     isDistanceValid = true;
                 } else {
                     System.out.println("Failed");
@@ -217,34 +230,42 @@ public class PiSocket {
             }
         }
     } 
-    
-    public String getRawData() throws IOException {
-        byte[] input;
-        
-        if (isConnected) {
-            
-            if(is.available() <= bufferSize) {
-                input = new byte[is.available()]; //storage space sized to fit!
-                receiveData = new byte[is.available()];
-                is.read(input);
-                for(int i = 0; (i < input.length) && (input != null); i++) {
-                    receiveData[i] = input[i]; //transfer input to full size storage
+    /**
+     * Method that takes all data received and parses it into a string useable for the robot
+     * @return Returns patched string
+     */
+    public String getRawData() {
+        try {
+            byte[] input;
+
+            if (isConnected) {
+
+                if(is.available() <= bufferSize) {
+                    input = new byte[is.available()]; //storage space sized to fit!
+                    receiveData = new byte[is.available()];
+                    is.read(input);
+                    for(int i = 0; (i < input.length) && (input != null); i++) {
+                        receiveData[i] = input[i]; //transfer input to full size storage
+                    }
+                } else {
+                    System.out.println("PI OVERFLOW");
+                    is.skip(is.available()); //reset if more is stored than buffer
+                    return null;
                 }
+
+                rawData = ""; //String to transfer received data to
+                System.out.println("Raw Data: "+receiveData.length);
+                for (int i = 0; i < receiveData.length; i++) {
+                    rawData += (char) receiveData[i]; //Cast bytes to chars and concatinate them to the String
+                }
+                System.out.println("Raw Data: " + rawData);
+                return rawData;
             } else {
-                System.out.println("PI OVERFLOW");
-                is.skip(is.available()); //reset if more is stored than buffer
+                connect();
                 return null;
             }
-            
-            rawData = ""; //String to transfer received data to
-            System.out.println("Raw Data: "+receiveData.length);
-            for (int i = 0; i < receiveData.length; i++) {
-                rawData += (char) receiveData[i]; //Cast bytes to chars and concatinate them to the String
-            }
-            System.out.println("Raw Data: " + rawData);
-            return rawData;
-        } else {
-            connect();
+        } catch (Exception ex){
+            ex.printStackTrace();
             return null;
         }
     }

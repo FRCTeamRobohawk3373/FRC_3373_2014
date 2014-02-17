@@ -66,11 +66,7 @@ public class RobotTemplate extends SimpleRobot {
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled()){
-            try {
-                socket.disconnect();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            socket.disconnect();
         }
         
         if (isEnabled() && isOperatorControl()){
@@ -89,8 +85,10 @@ public class RobotTemplate extends SimpleRobot {
                 ex.printStackTrace();
             }
             if (socket.isConnected){
-                System.out.println("CalculatedDistance: " + lookup.lookUpValue(socket.distanceDouble, pixelArray, distanceArray));
+                System.out.println("CalculatedDistance: " + lookup.lookUpValue(socket.pixelDistanceDouble, pixelArray, distanceArray));
             }
+            
+            
             socket.globalVariableUpdateAndListener();
 
             /*********"*****
@@ -169,19 +167,15 @@ public class RobotTemplate extends SimpleRobot {
             pickup.goToPos(.5); 
             
             SmartDashboard.putBoolean("isConnected: ", socket.isConnected);
-            SmartDashboard.putNumber("Distance", socket.distanceDouble);
+            SmartDashboard.putNumber("Distance", socket.pixelDistanceDouble);
             SmartDashboard.putBoolean("Is HOT", socket.isHot);
             SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             dsLCD.updateLCD();
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
-        try {
-            socket.sendString('c');
-            socket.disconnect();
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+        socket.sendChar('c');
+        socket.disconnect();
     }
 
     /**
