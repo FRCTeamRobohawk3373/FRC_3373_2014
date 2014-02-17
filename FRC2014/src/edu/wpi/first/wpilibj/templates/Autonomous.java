@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.templates.Drive;
 public class Autonomous {
     Drive drive = new Drive();
     Launcher launcher = new Launcher();
+    Pickup pickup = new Pickup();
     public void enterAutoBonusZone(long moveTime){
         drive.drive(0, 0, .75);
         try {
@@ -26,6 +27,8 @@ public class Autonomous {
     }
     
     public void shootAuto(boolean isHot){
+        pickup.targetPos = pickup.minVoltage;
+        pickup.goToPos(.5);
         launcher.targetPressure = 60;
         launcher.chargeShootingPistons();
         while (!isHot){

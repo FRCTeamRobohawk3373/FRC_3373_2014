@@ -39,6 +39,7 @@ public class RobotTemplate extends SimpleRobot {
     LiveWindow liveWindow = new LiveWindow();
     Timer robotTimer = new Timer();
     Deadband deadband = new Deadband();
+    LookUpTable lookup = new LookUpTable();
     
     int LX = 1;
     int LY = 2;
@@ -47,9 +48,9 @@ public class RobotTemplate extends SimpleRobot {
     int RY = 5;
     int DP = 6;
     
-    double[] distanceArray = new double[] {5.0, 10.0, 15.0, 20.0, 25.0};
+    double[] distanceArray = new double[] {5f, 6f, 7f, 8f, 9f, 10f, 11f, 12f, 13f, 14f, 15f, 16f, 17f, 18f, 19f, 20f, 21f, 22f, 23f, 24f, 25f};
     double[] pressureArray = new double[]{};
-    double[] pixelArraay = new double[]{};
+    double[] pixelArray = new double[]{318, 273, 238,  215, 193, 177, 163, 150, 141, 131, 123, 116, 110, 102, 98, 95, 90, 87, 84, 81, 78};
     
     
 
@@ -86,7 +87,7 @@ public class RobotTemplate extends SimpleRobot {
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-            
+            SmartDashboard.putNumber("Distance: ", lookup.lookUpValue(socket.distanceDouble, pixelArray, distanceArray));
             socket.globalVariableUpdateAndListener();
 
             /*********"*****
