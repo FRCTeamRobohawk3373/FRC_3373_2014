@@ -6,6 +6,7 @@ import unicodedata
 import time
 import math
 import platform
+import sys
 print('Running in Python ' + platform.python_version())
 
 DEBUG = True
@@ -60,7 +61,7 @@ def vision():
             greenDist = img.colorDistance(SimpleCV.Color.AQUAMARINE)
             filtered = img - greenDist
             
-            #TODO Filter out white light
+            #TODO Filter out white light?
             
             blobs = filtered.findBlobs(minsize = 300)
             
@@ -69,7 +70,7 @@ def vision():
                 if rectangles and DEBUG:
                     checkIsHot(rectangles)
                     getDistance(rectangles)
-                    debugPrint(rectangles)
+                    printStuff(rectangles)
                     
                     drawingLayer = SimpleCV.DrawingLayer(screenSize)
                     drawRects(rectangles, filtered, drawingLayer)
@@ -77,9 +78,8 @@ def vision():
                 elif rectangles:
                     checkIsHot(rectangles)
                     getDistance(rectangles)
-                elif DEBUG:
-                    print('No Rectangles')
                 else:
+                    debugPrint('No Rectangles')
                     distance = 0
                     isHot = False
                         
@@ -87,8 +87,9 @@ def vision():
             
     except:
         isVisionRunning = False
+        print sys.exc_info()[0]
 
-def debugPrint(rectangles):
+def printStuff(rectangles):
     print('\n')
     
     if len(rectangles) > 1:
@@ -120,7 +121,8 @@ def debugPrint(rectangles):
 
 def drawRects(rectangles, filtered, drawingLayer):
     rectangles[-1].drawMinRect(drawingLayer, (255,0,0), 5, 255)
-    rectangles[-2].drawMinRect(drawingLayer, (255,0,0), 5, 255)
+    if len(rectangles) > 1:
+        rectangles[-2].drawMinRect(drawingLayer, (255,0,0), 5, 255)
 
     filtered.addDrawingLayer(drawingLayer)
 
@@ -139,18 +141,46 @@ def checkIsHot(rectangles):
 def getDistance(rectangles):
     
     global distance
-    #if len(rectangles) > 1:
-        #rec1W = float(rectangles[-2].minRectWidth())
-        #rec2H = float(rectangles[-1].minRectHeight())
         
-        #if ((rec1W / rec2H) * (64.0 / 47.0)) <= 1.0:
+    if len(rectangles) > 1:
+        pixels = 0
+        semi1 = 0
+        semi2 = 0
+        
+        rec1H = float(rectangles[-1].minRectHeight())
+        rec2H = float(rectangles[-2].minRectHeight())
+        rec1W = float(rectangles[-1].minRectWidth())
+        rec2W = float(rectangles[-2].minRectWidth())
+        
+        if rec1H > rec2H:
+            semi1 = rec1H
+        else:
+            semi1 = rec2H
+        
+        if rec1W > rec2W:
+            semi2 = rec1W
+        else:
+            semi2 = rec2W
+        
+        if semi1 > semi2:
+            pixels = semi1
+        else:
+            pixels = semi2
             
-            #angle = math.acos((rec1W / rec2H) * (64.0 / 47.0))
-            #hypotenuse = rec2H
-            #distance = math.cos(angle) * hypotenuse
+        distance = str(pixels)
         
     if len(rectangles) > 0:
-        distance = str(rectangles[-1].minRectHeight())
+        pixels = 0
+        
+        rec1H = float(rectangles[-1].minRectHeight())
+        rec1W = float(rectangles[-1].minRectWidth())
+        
+        if rec1H > rec1W:
+            pixels = rec1H
+        else:
+            pixels = rec1W
+            
+        distance = str(pixels)
     else:
         distance = 0
     
@@ -215,6 +245,11 @@ def server():
         print("Connection Closed")
     except:
         isServerRunning = False
+        print sys.exc_info()[0]
+        
+def debugPrint(line):
+    if DEBUG == True:
+        print(line)
 
 def shutdown():
     command = "/usr/bin/sudo /sbin/shutdown -r now"

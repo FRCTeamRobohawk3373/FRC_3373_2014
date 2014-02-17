@@ -52,7 +52,7 @@ public class RobotTemplate extends SimpleRobot {
     double[] pressureArray = new double[]{};
     double[] pixelArray = new double[]{318, 273, 238,  215, 193, 177, 163, 150, 141, 131, 123, 116, 110, 102, 98, 95, 90, 87, 84, 81, 78};
     
-    
+    double safeZoneForShooting = 2.0;//must find a value for when the ball grabber is out of the way and we can shoot
 
     public void autonomous() {
 
@@ -155,7 +155,10 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if (shootStick.isAPushed()){
-                launcher.shoot();
+                if(pickup.pickupPot.getVoltage() <= safeZoneForShooting){
+                    launcher.shoot();                   
+                }
+
             }
             
             /*****************
@@ -205,7 +208,9 @@ public class RobotTemplate extends SimpleRobot {
             } else if(driveStick.isStartPushed()){
                 launcher.chargeShootingPistons();
             } else if(driveStick.isXPushed()){
-                launcher.shoot();
+                if(pickup.pickupPot.getVoltage() <= safeZoneForShooting){
+                    launcher.shoot();                   
+                }
             } else {
                 //launcher.holdPressure();
                 //launcher.retractingSolenoidL.set(false);
