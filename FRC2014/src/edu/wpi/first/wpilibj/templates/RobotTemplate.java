@@ -207,7 +207,9 @@ public class RobotTemplate extends SimpleRobot {
             } else if(driveStick.isStartPushed()){
                 launcher.chargeShootingPistons();
             } else if(driveStick.isXPushed()){
-                launcher.shoot();
+                if(pickup.pickupPot.getVoltage() <= safeZoneForShooting){
+                    launcher.shoot();                   
+                }
             } else {
                 //launcher.holdPressure();
                 //launcher.retractingSolenoidL.set(false);
