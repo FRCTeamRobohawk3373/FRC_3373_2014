@@ -50,6 +50,7 @@ public class RobotTemplate extends SimpleRobot {
     int RY = 5;
     int DP = 6;
     
+    double[] distanceToPressureArray = new double[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
     double[] distanceArray = new double[] {25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
     double[] pressureArray = new double[]{};
     double[] pixelArray = new double[]{78, 81, 84, 87, 90, 95, 98, 1002, 110, 116, 123, 131, 141, 150, 163, 177, 193, 215, 238, 273, 318};
@@ -250,7 +251,7 @@ public class RobotTemplate extends SimpleRobot {
                 pickup.doNothingBall();
             }
             
-            pickup.angleDiag(shootStick.isAPushed(), shootStick.isBPushed());
+            pickup.angleDiag(shootStick.isAHeld(), shootStick.isBHeld());
             
             currentTime = robotTimer.get();
             
