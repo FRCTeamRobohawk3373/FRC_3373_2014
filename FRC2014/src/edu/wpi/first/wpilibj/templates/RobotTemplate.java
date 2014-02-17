@@ -51,7 +51,7 @@ public class RobotTemplate extends SimpleRobot {
     double[] pressureArray = new double[]{};
     double[] pixelArraay = new double[]{};
     
-    
+    double safeZoneForShooting = 2.0;//must find a value for when the ball grabber is out of the way and we can shoot
 
     public void autonomous() {
 
@@ -154,7 +154,10 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if (shootStick.isAPushed()){
-                launcher.shoot();
+                if(pickup.pickupPot.getVoltage() <= safeZoneForShooting){
+                    launcher.shoot();                   
+                }
+
             }
             
             /*****************
