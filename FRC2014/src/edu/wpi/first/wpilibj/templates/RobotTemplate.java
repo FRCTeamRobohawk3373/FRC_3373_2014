@@ -83,7 +83,7 @@ public class RobotTemplate extends SimpleRobot {
             }
                         
             try {
-                Thread.sleep(100L);
+                Thread.sleep(10L);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
