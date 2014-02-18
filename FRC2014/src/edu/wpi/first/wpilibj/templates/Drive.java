@@ -8,6 +8,7 @@ package edu.wpi.first.wpilibj.templates;
 
 
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.templates.NewMath;
 import edu.wpi.first.wpilibj.templates.Deadband;
 /**
@@ -36,6 +37,7 @@ public class Drive {
                 math.pow(deadband.zero(driveLX, .1), 3)*speed,
                 math.pow(deadband.zero(driveRX, .1), 3)*speed,
                 math.pow(deadband.zero(driveLY, .1), 3)*speed, 0);
+        SmartDashboard.putNumber("DriveLX", driveLX);
         mechanum.setSafetyEnabled(false);
     }
     /**

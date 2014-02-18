@@ -66,7 +66,7 @@ public class RobotTemplate extends SimpleRobot {
     public void operatorControl() {
         SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled()){
-            socket.disconnect();
+            //socket.disconnect();
         }
         
         if (isEnabled() && isOperatorControl()){
@@ -76,9 +76,9 @@ public class RobotTemplate extends SimpleRobot {
         
         while (isEnabled() && isOperatorControl()) {
             if (!socket.isConnected){
-                socket.connect();
+                //socket.connect();
             }
-            socket.isConnected();
+            //socket.isConnected();
             try {
                 Thread.sleep(10L);
             } catch (InterruptedException ex) {
@@ -89,7 +89,7 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             
-            socket.globalVariableUpdateAndListener();
+            //socket.globalVariableUpdateAndListener();
 
             /*********"*****
              * Driver Code *
@@ -174,8 +174,8 @@ public class RobotTemplate extends SimpleRobot {
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
-        socket.sendChar('c');
-        socket.disconnect();
+        //socket.sendChar('c');
+        //socket.disconnect();
     }
 
     /**
