@@ -90,10 +90,12 @@ public class Launcher {
         pressureSolenoidL.set(false);//don't add pressure
         exhaustSolenoid.set(false);//don't exhaust pressure
         retractingSolenoidL.set(false);//don't retract
+        retractingSolenoidR.set(false);
     }
     public void retractShootingPistons(){
         exhaustSolenoid.set(true);//exhaust before returning catapult home
-        retractingSolenoidL.set(true);    
+        retractingSolenoidL.set(true);
+        retractingSolenoidR.set(true);
     }
     public void shoot(){
         final Thread thread = new Thread(new Runnable() {
@@ -104,7 +106,7 @@ public class Launcher {
                     addPressure();
                 }
                 holdPressure();
-                returnCatapultToHome();//if we decide we don't want automatic returning, 
+                returnCatapultToHome();//if we decide we don't want automatic returning, get rid of this method
                 
             }
         });
