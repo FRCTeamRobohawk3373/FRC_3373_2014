@@ -165,6 +165,7 @@ public class RobotTemplate extends SimpleRobot {
              * Miscellaneous *
              *****************/
             pickup.goToPos(.5); 
+            launcher.runAirCompressor();
             
             SmartDashboard.putBoolean("isConnected: ", socket.isConnected);
             SmartDashboard.putNumber("Distance", socket.pixelDistanceDouble);
@@ -193,7 +194,8 @@ public class RobotTemplate extends SimpleRobot {
         liveWindow.setEnabled(false);
         launcher.lockShootingPistons();
         
-        while(isTest()){
+        while(isTest() && isEnabled()){
+            launcher.runAirCompressor();
             liveWindow.setEnabled(false);
             if(driveStick.isAPushed()){
                 launcher.targetPressure += 5;
