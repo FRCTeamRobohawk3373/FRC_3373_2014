@@ -10,6 +10,7 @@ package edu.wpi.first.wpilibj.templates;
 import edu.wpi.first.wpilibj.AnalogChannel;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
@@ -33,6 +34,9 @@ public class Launcher {
     Solenoid retractingSolenoidR = new Solenoid(1, 7);
     
     AnalogChannel pressureSensor;
+    DigitalInput pressureSwitch = new DigitalInput(2);
+    
+    Relay airCompressor = new Relay(1);
     
     Timer launcherTimer = new Timer();
     
@@ -183,6 +187,13 @@ public class Launcher {
         });
         if (!isThreadRunning) {
             thread.start();
+        }
+    }
+    public void runAirCompressor(){
+        if(pressureSwitch.get()){//if this is tripped, we have all the air pressure allowed (currently)
+            airCompressor.set(Relay.Value.kOff);
+        } else {
+            airCompressor.set(Relay.Value.kOn);
         }
     }
     
