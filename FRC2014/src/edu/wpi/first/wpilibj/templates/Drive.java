@@ -59,6 +59,8 @@ public class Drive {
      * @param turboButton boolean that corresponds to desired faster speed, held button on controller
      */
     public void speedModifier(boolean sniperButton, boolean turboButton){
+        
+        speed = .5;
         if (sniperButton) {
             speed *= .5;
         }
