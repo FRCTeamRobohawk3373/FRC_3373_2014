@@ -36,7 +36,7 @@ public class Autonomous {
     public void shootAuto(boolean isHot){
         pickup.targetPos = pickup.minVoltage;
         pickup.goToPos(.5);
-        launcher.targetPressure = 60;
+        launcher.targetPressure = 55;
         launcher.chargeShootingPistons();
         while (!isHot){
             try {

@@ -57,7 +57,35 @@ public class RobotTemplate extends SimpleRobot {
     double safeZoneForShooting = 2.0;//must find a value for when the ball grabber is out of the way and we can shoot
 
     public void autonomous() {
-
+        socket.connect();
+        socket.globalVariableUpdateAndListener();
+        pickup.targetPos = pickup.minVoltage;
+        pickup.goToPos(.5);
+        launcher.targetPressure = 55;
+        launcher.chargeShootingPistons();
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        if (socket.isHot){
+            launcher.shoot();
+        } else {
+            try {
+                Thread.sleep(5000L);
+            } catch (InterruptedException ex) {
+                ex.printStackTrace();
+            }
+            launcher.shoot();
+        }
+        drive.drive(0,0,.75);
+        try {
+            Thread.sleep(3000L);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        drive.drive(0,0,0);
+        
     }
 
     /**
