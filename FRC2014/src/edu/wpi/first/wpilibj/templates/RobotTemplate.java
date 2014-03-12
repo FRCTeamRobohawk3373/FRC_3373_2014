@@ -168,14 +168,14 @@ public class RobotTemplate extends SimpleRobot {
             
             if (shootStick.isBPushed()){
                 //TODO: PREDEF CHARGEPOSA
-                //launcher.targetPressure = ; put a pressure(psi) for a pre-defined place on the field
-                //launcher.chargeShootingPistons();
+                launcher.targetPressure = 55; //put a pressure(psi) for a pre-defined place on the field
+                launcher.chargeShootingPistons();
             }
                 
             if (shootStick.isYPushed()){
                 //TODO: PREDEF CHARGEPOSB
-                //launcher.targetPressure = ; put a pressure(psi) for a pre-defined place on the field
-                //launcher.chargeShootingPistons();
+                launcher.targetPressure = 30; //put a pressure(psi) for a pre-defined place on the field
+                launcher.chargeShootingPistons();
             }
             
             if (shootStick.isXPushed()){
