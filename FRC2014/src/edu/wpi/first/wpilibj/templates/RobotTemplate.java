@@ -8,6 +8,7 @@ package edu.wpi.first.wpilibj.templates;
 /*----------------------------------------------------------------------------*/
 
 
+import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStationLCD;
 import edu.wpi.first.wpilibj.SimpleRobot;
 import edu.wpi.first.wpilibj.Talon;
@@ -42,6 +43,7 @@ public class RobotTemplate extends SimpleRobot {
     Deadband deadband = new Deadband();
     LookUpTable lookup = new LookUpTable();
     DriverStationLCD dsLCD = DriverStationLCD.getInstance();
+    Compressor compressor = new Compressor(3,1);
     
     int LX = 1;
     int LY = 2;
@@ -50,11 +52,14 @@ public class RobotTemplate extends SimpleRobot {
     int RY = 5;
     int DP = 6;
     
-    double[] distanceToPressureArray = new double[] {5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
-    double[] distanceArray = new double[] {25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5};
+    double[] distanceToPressureArray = new double[] {9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
+    double[] distanceArray = new double[] {25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9};
     double[] pressureArray = new double[]{};
-    double[] pixelArray = new double[]{78, 81, 84, 87, 90, 95, 98, 1002, 110, 116, 123, 131, 141, 150, 163, 177, 193, 215, 238, 273, 318};
+    double[] pixelArray = new double[]{54, 54.53, 55.3, 55.4, 55.5, 56.13, 56.4, 100.21, 103.25, 110.11, 116.42, 124.19, 132, 141.92, 153.92, 165.21, 179, };
     double safeZoneForShooting = 2.0;//must find a value for when the ball grabber is out of the way and we can shoot
+    double calculatedDistance;
+    
+
 
     public void autonomous() {
         socket.connect();
@@ -104,9 +109,10 @@ public class RobotTemplate extends SimpleRobot {
         
         while (isEnabled() && isOperatorControl()) {
             if (!socket.isConnected){
-                //socket.connect();
+                socket.connect();
             }
-            //socket.isConnected();
+            socket.isConnected();
+            compressor.start();
             try {
                 Thread.sleep(10L);
             } catch (InterruptedException ex) {
@@ -116,8 +122,14 @@ public class RobotTemplate extends SimpleRobot {
                 System.out.println("CalculatedDistance: " + lookup.lookUpValue(socket.pixelDistanceDouble, pixelArray, distanceArray));
             }
             
+            calculatedDistance = lookup.lookUpValue(socket.pixelDistanceDouble, pixelArray, distanceArray);
             
-            //socket.globalVariableUpdateAndListener();
+            if (calculatedDistance > 26){
+                socket.isDistanceValid = false;
+            }
+            
+            
+            socket.globalVariableUpdateAndListener();
 
             /*********"*****
              * Driver Code *
@@ -179,7 +191,9 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if (shootStick.isXPushed()){
-                //TODO: VISION CHARGEPOS
+                if (socket.isDistanceValid){
+                    launcher.targetPressure = lookup.lookUpValue(calculatedDistance, distanceToPressureArray, pressureArray);
+                }
             }
             
             if (shootStick.isAPushed()){
@@ -189,22 +203,34 @@ public class RobotTemplate extends SimpleRobot {
 
             }
             
+            if (shootStick.isStartPushed()){
+                if (!launcher.isExtended && pickup.pickupPot.getVoltage() <= safeZoneForShooting){
+                    launcher.extend();
+                } else {
+                    launcher.returnCatapultToHome();
+                }
+            }
+            
             /*****************
              * Miscellaneous *
              *****************/
             pickup.goToPos(.5); 
-            launcher.runAirCompressor();
+            //launcher.runAirCompressor();
             
             SmartDashboard.putBoolean("isConnected: ", socket.isConnected);
             SmartDashboard.putNumber("Distance", socket.pixelDistanceDouble);
             SmartDashboard.putBoolean("Is HOT", socket.isHot);
             SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
+            SmartDashboard.putBoolean("Pressure", compressor.getPressureSwitchValue());
+            
             dsLCD.updateLCD();
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
-        //socket.sendChar('c');
-        //socket.disconnect();
+        socket.sendChar('c');
+        socket.disconnect();
+        compressor.stop();
+        //compressor.free();
     }
 
     /**
@@ -223,7 +249,7 @@ public class RobotTemplate extends SimpleRobot {
         launcher.lockShootingPistons();
         
         while(isTest() && isEnabled()){
-            launcher.runAirCompressor();
+            //launcher.runAirCompressor();
             liveWindow.setEnabled(false);
             if(driveStick.isAPushed()){
                 launcher.targetPressure += 5;
@@ -280,7 +306,7 @@ public class RobotTemplate extends SimpleRobot {
             
             currentPressurePSI = launcher.pressureInCylinder();
             analogInput = launcher.pressureSensor.getVoltage();
-
+            pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .5);
             
             SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
             SmartDashboard.putNumber("Robot Time:", robotTimer.get());

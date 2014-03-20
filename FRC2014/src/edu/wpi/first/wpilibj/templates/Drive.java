@@ -23,7 +23,7 @@ public class Drive {
     }
     
     NewMath math = new NewMath(); 
-    RobotDrive mechanum = new RobotDrive(1,2,3,4);
+    RobotDrive mechanum = new RobotDrive(4, 3, 1, 2);
     Deadband deadband = new Deadband();
     double speed = .50; //default movement speed
     boolean isShooterFront = true;
@@ -34,9 +34,9 @@ public class Drive {
      */
     public void drive(double driveLX, double driveRX, double driveLY){
         mechanum.mecanumDrive_Cartesian(
-                math.pow(deadband.zero(driveLX, .1), 3)*speed,
-                math.pow(deadband.zero(driveRX, .1), 3)*speed,
-                math.pow(deadband.zero(driveLY, .1), 3)*speed, 0);
+                math.pow(deadband.zero(-(driveLX), .1), 3)*speed,
+                math.pow(deadband.zero(-(driveRX), .1), 3)*speed,
+                math.pow(deadband.zero(-(driveLY), .1), 3)*speed, 0);
         SmartDashboard.putNumber("DriveLX", driveLX);
         mechanum.setSafetyEnabled(false);
     }
@@ -47,7 +47,7 @@ public class Drive {
         if (isShooterFront){
             isShooterFront = false;
         } else if (!isShooterFront){
-            isShooterFront = false;
+            isShooterFront = true;
         }
         if (isShooterFront){
             speed = Math.abs(speed);

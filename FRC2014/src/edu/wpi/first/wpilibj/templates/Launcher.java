@@ -34,9 +34,9 @@ public class Launcher {
     Solenoid retractingSolenoidR = new Solenoid(1, 7);
     
     AnalogChannel pressureSensor;
-    DigitalInput pressureSwitch = new DigitalInput(2);
+    //DigitalInput pressureSwitch = new DigitalInput(2);
     
-    Relay airCompressor = new Relay(1);
+    //Relay airCompressor = new Relay(1);
     
     Timer launcherTimer = new Timer();
     
@@ -56,6 +56,8 @@ public class Launcher {
     boolean isThreadRunning = false;
     boolean isShootThreadRunning = false;
     boolean isReturningThreadRunning = false;
+    boolean extendThreadFlag = false;
+    boolean isExtended = false;
     /**
      * Constructor that is here for no reason but we will not remove it. ITS BLACK MAGIC
      */
@@ -100,13 +102,34 @@ public class Launcher {
     public void shoot(){
         final Thread thread = new Thread(new Runnable() {
             public void run() {
-                isShootThreadRunning = true;
+                extendThreadFlag = true;
                 double timeWhenStarted = launcherTimer.get();
                 while((launcherTimer.get() - timeWhenStarted) <= 1){
                     addPressure();
                 }
                 holdPressure();
                 returnCatapultToHome();//if we decide we don't want automatic returning, get rid of this method
+                isExtended = false;
+            }
+        });
+        if (!extendThreadFlag) {
+            unlockShootingPistons();
+            isExtended = true;
+            thread.start();
+            hasShot = true;//we have shot
+        }
+    }
+    
+    public void extend(){
+        final Thread thread = new Thread(new Runnable() {
+            public void run() {
+                isShootThreadRunning = true;
+                double timeWhenStarted = launcherTimer.get();
+                while((launcherTimer.get() - timeWhenStarted) <= 1){
+                    addPressure();
+                }
+                holdPressure();
+                //returnCatapultToHome();//if we decide we don't want automatic returning, get rid of this method
                 
             }
         });
@@ -115,7 +138,8 @@ public class Launcher {
             thread.start();
             hasShot = true;//we have shot
         }
-    }
+    }    
+
     public double pressureInCylinder(){
         slope = ((highestPressure - lowestPressure)/(highestVoltagePressure - lowestVoltagePressure));
         pressurePSI = (slope * (pressureSensor.getVoltage() - lowestVoltagePressure) + lowestPressure);
@@ -191,13 +215,13 @@ public class Launcher {
             thread.start();
         }
     }
-    public void runAirCompressor(){
+    /*public void runAirCompressor(){
         if(pressureSwitch.get()){//if this is tripped, we have all the air pressure allowed (currently)
             airCompressor.set(Relay.Value.kOff);
         } else {
             airCompressor.set(Relay.Value.kOn);
         }
-    }
+    }*/
     
 /*
     public void shootThread() {

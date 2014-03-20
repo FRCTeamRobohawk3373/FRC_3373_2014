@@ -64,6 +64,7 @@ public class PiSocket {
                 try {
                     os = connection.openOutputStream();
                     is = connection.openInputStream();
+                    isConnected = true;
                     //ISR = new InputStreamReader(connection.openInputStream(), "UTF-8");
                 } catch (IOException ex){
                     ex.printStackTrace();
