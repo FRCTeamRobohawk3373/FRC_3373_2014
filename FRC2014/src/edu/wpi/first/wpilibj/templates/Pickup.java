@@ -28,9 +28,9 @@ public class Pickup {
     
     double maxVoltage = 4.82;
     double minVoltage = 0.8;
-    double pickupVoltage = 0;
-    double dropoffVoltage = 5;
-    final double angleTolerance = 15;
+    double pickupVoltage = minVoltage;
+    double dropoffVoltage = maxVoltage;
+    final double angleTolerance = .1;
     double diagSpeed = .5;
     static boolean isAtPosition = false;
     double targetPos = getPickupPos();

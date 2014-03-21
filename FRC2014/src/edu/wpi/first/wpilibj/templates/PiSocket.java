@@ -57,7 +57,7 @@ public class PiSocket {
                     connection = (SocketConnection) Connector.open("socket://10.33.73.3:3373", Connector.READ_WRITE, true);
                     System.out.println("Connected");
                 } catch (IOException ex) {
-                    ex.printStackTrace();   
+                    //ex.printStackTrace();   
                     System.out.println("Connection Failed");
                 }
 
@@ -67,7 +67,7 @@ public class PiSocket {
                     isConnected = true;
                     //ISR = new InputStreamReader(connection.openInputStream(), "UTF-8");
                 } catch (IOException ex){
-                    ex.printStackTrace();
+                    //ex.printStackTrace();
                 }
             isConnectThreadRunning = false;
             }
@@ -85,7 +85,7 @@ public class PiSocket {
             isConnected = true;
         } catch (Exception ex){
             isConnected = false;
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
     }
     /**
@@ -100,7 +100,7 @@ public class PiSocket {
             System.out.println("Disconnected");
         } catch (Exception ex){
             System.out.println("Disconnect Failed");
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
 
     }
@@ -114,7 +114,7 @@ public class PiSocket {
             os.write(message);
             //System.out.println("Message: " + message);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            //ex.printStackTrace();
         }
 
     }
@@ -184,7 +184,7 @@ public class PiSocket {
                             //System.out.println("Distance: " + distanceDouble);
                             //System.out.println("ISHOT: " + isHot);
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            //ex.printStackTrace();
                         }
                     } else {
                         connect();
@@ -266,7 +266,7 @@ public class PiSocket {
                 return null;
             }
         } catch (Exception ex){
-            ex.printStackTrace();
+            //////ex.printStackTrace();
             return null;
         }
     }

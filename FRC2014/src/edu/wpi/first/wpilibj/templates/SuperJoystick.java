@@ -1,4 +1,4 @@
-package edu.wpi.first.wpilibj.templates;
+ package edu.wpi.first.wpilibj.templates;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

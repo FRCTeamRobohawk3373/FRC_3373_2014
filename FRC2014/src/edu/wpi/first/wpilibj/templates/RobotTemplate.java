@@ -56,16 +56,19 @@ public class RobotTemplate extends SimpleRobot {
     double[] distanceArray = new double[] {25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9};
     double[] pressureArray = new double[]{};
     double[] pixelArray = new double[]{54, 54.53, 55.3, 55.4, 55.5, 56.13, 56.4, 100.21, 103.25, 110.11, 116.42, 124.19, 132, 141.92, 153.92, 165.21, 179, };
-    double safeZoneForShooting = 2.0;//must find a value for when the ball grabber is out of the way and we can shoot
+    double safeZoneForShooting = 1.5;//must find a value for when the ball grabber is out of the way and we can shoot
     double calculatedDistance;
+    boolean hasLocked = false;
     
 
 
     public void autonomous() {
+        compressor.start();
         socket.connect();
         socket.globalVariableUpdateAndListener();
         pickup.targetPos = pickup.minVoltage;
         pickup.goToPos(.5);
+        launcher.lockShootingPistons();
         launcher.targetPressure = 55;
         launcher.chargeShootingPistons();
         try {
@@ -79,7 +82,7 @@ public class RobotTemplate extends SimpleRobot {
             try {
                 Thread.sleep(5000L);
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
+                //ex.printStackTrace();
             }
             launcher.shoot();
         }
@@ -90,7 +93,7 @@ public class RobotTemplate extends SimpleRobot {
             ex.printStackTrace();
         }
         drive.drive(0,0,0);
-        
+        compressor.stop();
     }
 
     /**
@@ -100,6 +103,11 @@ public class RobotTemplate extends SimpleRobot {
         SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled()){
             //socket.disconnect();
+        }
+        
+        if (!hasLocked && launcher.pressureInCylinder() > 30){
+           launcher.lockShootingPistons();
+           hasLocked = true;
         }
         
         if (isEnabled() && isOperatorControl()){
@@ -230,6 +238,7 @@ public class RobotTemplate extends SimpleRobot {
         socket.sendChar('c');
         socket.disconnect();
         compressor.stop();
+        hasLocked = false;
         //compressor.free();
     }
 
@@ -250,6 +259,7 @@ public class RobotTemplate extends SimpleRobot {
         
         while(isTest() && isEnabled()){
             //launcher.runAirCompressor();
+            compressor.start();
             liveWindow.setEnabled(false);
             if(driveStick.isAPushed()){
                 launcher.targetPressure += 5;
@@ -316,6 +326,7 @@ public class RobotTemplate extends SimpleRobot {
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
+        compressor.stop();
         
         
     }
