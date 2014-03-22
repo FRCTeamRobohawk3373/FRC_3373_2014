@@ -96,7 +96,7 @@ public class Pickup {
      */
     private void goToAngle(double target, double currentPos, double speed){
         //System.out.println(deadband.zero(Math.abs(target-currentPos), 5, 1));
-        if (Math.abs(target-currentPos) <= 5) {//changed angletolerance to 5
+        if (Math.abs(target-currentPos) <= .1) {//changed angletolerance to 5
             actuateTalon.set(0);
         } else if (target < currentPos){
             actuateTalon.set(speed);

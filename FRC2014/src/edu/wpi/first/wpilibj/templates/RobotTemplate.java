@@ -69,12 +69,21 @@ public class RobotTemplate extends SimpleRobot {
         //pickup.goToPos(.5);
         launcher.lockShootingPistons();
         //launcher.targetPressure = 55;
-        //launcher.chargeShootingPistons();
+        launcher.chargeShootingPistons(55);
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
+        
+        pickup.actuateTalon.set(.75);
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+        pickup.actuateTalon.set(0);
+        
         /*if (socket.isHot){
             //launcher.shoot();
         } else {
@@ -85,13 +94,14 @@ public class RobotTemplate extends SimpleRobot {
             }
             //launcher.shoot();
         }*/
-        drive.drive(0,0.1,-.75);
+        drive.drive(0,.4488,-.75);
         try {
-            Thread.sleep(3000L);
+            Thread.sleep(2500L);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
         drive.drive(0,0,0);
+        launcher.shoot();
         compressor.stop();
     }
 
@@ -148,9 +158,11 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if (driveStick.isYPushed()){
+                System.out.println("Dropping Off");
                 pickup.targetPos = pickup.dropoffVoltage;
             }
-            
+            System.out.println("Joystick X: " + driveStick.getRawAxis(RX));
+            System.out.println("Joystik Y: " + driveStick.getRawAxis(LY));
             if (driveStick.getRawAxis(triggers) < -.3){
                 pickup.grabBall();
             }
@@ -181,7 +193,7 @@ public class RobotTemplate extends SimpleRobot {
             if (deadband.zero(shootStick.getRawAxis(LY), .1) != 0){
                 //pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY));
                 //if (pickup.getPickupPos() < pickup.maxVoltage && pickup.getPickupPos() > pickup.minVoltage){
-                pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .75); //TODO FIX ABOVE IF ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .75); //TODO FIX ABOVE IF 
                 //}
             } else {
                 pickup.actuateTalon.set(0);
@@ -225,14 +237,7 @@ public class RobotTemplate extends SimpleRobot {
              * Miscellaneous *
              *****************/
             //pickup.goToPos(.5); 
-            //launcher.runAirCompressor();  
-            /*SmartDashboard.putNumber("Pressure PSI", launcher.pressureInCylinder());
-            SmartDashboard.putBoolean("isConnected: ", socket.isConnected);
-            SmartDashboard.putNumber("Distance", socket.pixelDistanceDouble);
-            SmartDashboard.putBoolean("Is HOT", socket.isHot);
-            SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
-            SmartDashboard.putBoolean("Pressure", compressor.getPressureSwitchValue());
-            */
+            //launcher.runAirCompressor();
             dsLCD.updateLCD();
             driveStick.clearButtons();
             shootStick.clearButtons();
@@ -318,9 +323,10 @@ public class RobotTemplate extends SimpleRobot {
             
             currentPressurePSI = launcher.pressureInCylinder();
             analogInput = launcher.pressureSensor.getVoltage();
-            pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .5);
+            //pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .5);
             
             //SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
+            System.out.println("Position: " + pickup.getPickupPos());
             SmartDashboard.putNumber("Robot Time:", robotTimer.get());
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
             SmartDashboard.putNumber("Pressure Voltage", analogInput);

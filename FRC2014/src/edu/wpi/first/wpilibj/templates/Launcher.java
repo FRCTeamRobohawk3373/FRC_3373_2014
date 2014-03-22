@@ -198,7 +198,10 @@ public class Launcher {
                                 Thread.sleep(1);
                             } catch (Exception e){
                                 //do nothing
-                            }                        
+                            }
+                        if(hasShot){
+                            break;
+                        }
                     }
                     holdPressure();
                     while (targetPressure > currentPressure) {
@@ -208,7 +211,10 @@ public class Launcher {
                                 Thread.sleep(1);
                             } catch (Exception e){
                                 //do nothing
-                            }                       
+                            }
+                        if(hasShot){
+                            break;
+                        }
                     }
                     holdPressure();
                     while(!hasShot){
