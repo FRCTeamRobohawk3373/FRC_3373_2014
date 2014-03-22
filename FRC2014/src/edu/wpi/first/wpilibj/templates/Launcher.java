@@ -48,7 +48,7 @@ public class Launcher {
     double pressurePSI;
     double slope;
     
-    double targetPressure = 0;//in PSI
+    //double targetPressure = 0;//in PSI
     
     double  currentPressure;
     boolean isReadyToShoot;
@@ -66,12 +66,12 @@ public class Launcher {
     }
 
     public void unlockShootingPistons() {
-        lockingSolenoids.set(DoubleSolenoid.Value.kForward);
+        lockingSolenoids.set(DoubleSolenoid.Value.kReverse);
     }
 
     public void lockShootingPistons() {
         //if (isPistonHome.get()) {
-            lockingSolenoids.set(DoubleSolenoid.Value.kReverse);
+            lockingSolenoids.set(DoubleSolenoid.Value.kForward);
         //}
     }
     public void doNothingLockingPistons(){
@@ -105,11 +105,17 @@ public class Launcher {
                 extendThreadFlag = true;
                 double timeWhenStarted = launcherTimer.get();
                 while((launcherTimer.get() - timeWhenStarted) <= 1){
+                    try {
+                        Thread.sleep(1L);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
                     addPressure();
                 }
                 holdPressure();
                 returnCatapultToHome();//if we decide we don't want automatic returning, get rid of this method
-                isExtended = false;
+                extendThreadFlag = false;
+                
             }
         });
         if (!extendThreadFlag) {
@@ -117,6 +123,7 @@ public class Launcher {
             isExtended = true;
             thread.start();
             hasShot = true;//we have shot
+            
         }
     }
     
@@ -126,6 +133,11 @@ public class Launcher {
                 isShootThreadRunning = true;
                 double timeWhenStarted = launcherTimer.get();
                 while((launcherTimer.get() - timeWhenStarted) <= 1){
+                    try {
+                        Thread.sleep(1L);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
                     addPressure();
                 }
                 holdPressure();
@@ -151,13 +163,19 @@ public class Launcher {
             public void run() {
                 isReturningThreadRunning = true;
                 double timeWhenStarted = launcherTimer.get();
-                while((launcherTimer.get() - timeWhenStarted) <= 1){
+                while((launcherTimer.get() - timeWhenStarted) <= 5){
+                    try {
+                        Thread.sleep(1L);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }                    
                     retractShootingPistons();
                 }
                 lockShootingPistons();
                 holdPressure();
                 isReturningThreadRunning = false;
                 isShootThreadRunning = false;
+                isExtended = false;
             }
         });
         if (!isReturningThreadRunning) {
@@ -165,39 +183,51 @@ public class Launcher {
             hasShot = false;//we haven't shot yet
         }
     }
-    public void chargeShootingPistons() {
+    public void chargeShootingPistons(final double targetPressure) {
         final Thread thread = new Thread(new Runnable() {
+            
             public void run() {
                 isThreadRunning = true;
+                lockShootingPistons();
                 if(targetPressure != 0){
                     currentPressure = pressureInCylinder();
                     while (targetPressure < currentPressure) {
                         currentPressure = pressureInCylinder();
                         exhaustPressure();
+                            try{
+                                Thread.sleep(1);
+                            } catch (Exception e){
+                                //do nothing
+                            }                        
                     }
                     holdPressure();
                     while (targetPressure > currentPressure) {
                         currentPressure = pressureInCylinder(); 
                         addPressure();
+                            try{
+                                Thread.sleep(1);
+                            } catch (Exception e){
+                                //do nothing
+                            }                       
                     }
                     holdPressure();
                     while(!hasShot){
                         currentPressure = pressureInCylinder();
                         while((pressureInCylinder() - targetPressure) >= 2){
                             exhaustPressure();
-//                            try{
-//                                Thread.sleep(1);
-//                            } catch (Exception e){
-//                                //do nothing
-//                            }
+                            try{
+                                Thread.sleep(1);
+                            } catch (Exception e){
+                                //do nothing
+                            }
                         }                        
                         while ((targetPressure - pressureInCylinder()) >= 2){
                             addPressure();
-//                            try{
-//                                Thread.sleep(1);
-//                            } catch (Exception e){
-//                                //do nothing
-//                            }
+                            try{
+                                Thread.sleep(1);
+                            } catch (Exception e){
+                                //do nothing
+                            }
                         }
                             holdPressure();
                         try{

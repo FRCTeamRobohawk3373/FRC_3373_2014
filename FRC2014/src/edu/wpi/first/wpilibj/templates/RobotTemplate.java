@@ -36,8 +36,8 @@ public class RobotTemplate extends SimpleRobot {
     Drive drive = Drive.getInstance();
     Launcher launcher = new Launcher();
     Pickup pickup = new Pickup();
-    PiSocket socket = new PiSocket();
-    Diagnostics diag = new Diagnostics();
+    //PiSocket socket = new PiSocket();
+    //Diagnostics diag = new Diagnostics();
     LiveWindow liveWindow = new LiveWindow();
     Timer robotTimer = new Timer();
     Deadband deadband = new Deadband();
@@ -56,37 +56,36 @@ public class RobotTemplate extends SimpleRobot {
     double[] distanceArray = new double[] {25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9};
     double[] pressureArray = new double[]{};
     double[] pixelArray = new double[]{54, 54.53, 55.3, 55.4, 55.5, 56.13, 56.4, 100.21, 103.25, 110.11, 116.42, 124.19, 132, 141.92, 153.92, 165.21, 179, };
-    double safeZoneForShooting = 1.5;//must find a value for when the ball grabber is out of the way and we can shoot
+    double safeZoneForShooting = 5;//must find a value for when the ball grabber is out of the way and we can shoot TODO
     double calculatedDistance;
     boolean hasLocked = false;
     
 
-
     public void autonomous() {
         compressor.start();
-        socket.connect();
-        socket.globalVariableUpdateAndListener();
+        //socket.connect();
+        //socket.globalVariableUpdateAndListener();
         pickup.targetPos = pickup.minVoltage;
-        pickup.goToPos(.5);
+        //pickup.goToPos(.5);
         launcher.lockShootingPistons();
-        launcher.targetPressure = 55;
-        launcher.chargeShootingPistons();
+        //launcher.targetPressure = 55;
+        //launcher.chargeShootingPistons();
         try {
             Thread.sleep(1000L);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        if (socket.isHot){
-            launcher.shoot();
+        /*if (socket.isHot){
+            //launcher.shoot();
         } else {
             try {
                 Thread.sleep(5000L);
             } catch (InterruptedException ex) {
                 //ex.printStackTrace();
             }
-            launcher.shoot();
-        }
-        drive.drive(0,0,.75);
+            //launcher.shoot();
+        }*/
+        drive.drive(0,0.1,-.75);
         try {
             Thread.sleep(3000L);
         } catch (InterruptedException ex) {
@@ -100,15 +99,12 @@ public class RobotTemplate extends SimpleRobot {
      * This function is called once each time the robot enters operator control.
      */
     public void operatorControl() {
-        SmartDashboard.putNumber("Shoot Delay", 500);
+        //SmartDashboard.putNumber("Shoot Delay", 500);
         if (isDisabled()){
             //socket.disconnect();
         }
         
-        if (!hasLocked && launcher.pressureInCylinder() > 30){
-           launcher.lockShootingPistons();
-           hasLocked = true;
-        }
+
         
         if (isEnabled() && isOperatorControl()){
             robotTimer.start();
@@ -116,28 +112,28 @@ public class RobotTemplate extends SimpleRobot {
         }
         
         while (isEnabled() && isOperatorControl()) {
-            if (!socket.isConnected){
+            /*if (!socket.isConnected){
                 socket.connect();
-            }
-            socket.isConnected();
+            }*/
+            //socket.isConnected();
             compressor.start();
             try {
                 Thread.sleep(10L);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
             }
-            if (socket.isConnected){
+            /*if (socket.isConnected){
                 System.out.println("CalculatedDistance: " + lookup.lookUpValue(socket.pixelDistanceDouble, pixelArray, distanceArray));
-            }
+            }*/
+           
+            //calculatedDistance = lookup.lookUpValue(socket.pixelDistanceDouble, pixelArray, distanceArray);
             
-            calculatedDistance = lookup.lookUpValue(socket.pixelDistanceDouble, pixelArray, distanceArray);
-            
-            if (calculatedDistance > 26){
+            /*if (calculatedDistance > 26){
                 socket.isDistanceValid = false;
-            }
+            }*/
             
             
-            socket.globalVariableUpdateAndListener();
+            //socket.globalVariableUpdateAndListener();
 
             /*********"*****
              * Driver Code *
@@ -183,25 +179,30 @@ public class RobotTemplate extends SimpleRobot {
             }
             
             if (deadband.zero(shootStick.getRawAxis(LY), .1) != 0){
-                pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY));
+                //pickup.targetPos = pickup.moveAccordingToJoystick(shootStick.getRawAxis(LY));
+                //if (pickup.getPickupPos() < pickup.maxVoltage && pickup.getPickupPos() > pickup.minVoltage){
+                pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .75); //TODO FIX ABOVE IF ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                //}
+            } else {
+                pickup.actuateTalon.set(0);
             }
-            
+             
             if (shootStick.isBPushed()){
                 //TODO: PREDEF CHARGEPOSA
-                launcher.targetPressure = 55; //put a pressure(psi) for a pre-defined place on the field
-                launcher.chargeShootingPistons();
+                //launcher.targetPressure = 55; //put a pressure(psi) for a pre-defined place on the field
+                launcher.chargeShootingPistons(55);
             }
                 
             if (shootStick.isYPushed()){
                 //TODO: PREDEF CHARGEPOSB
-                launcher.targetPressure = 30; //put a pressure(psi) for a pre-defined place on the field
-                launcher.chargeShootingPistons();
+                //launcher.targetPressure = 30; //put a pressure(psi) for a pre-defined place on the field
+                launcher.chargeShootingPistons(30);
             }
             
             if (shootStick.isXPushed()){
-                if (socket.isDistanceValid){
+                /*if (socket.isDistanceValid){
                     launcher.targetPressure = lookup.lookUpValue(calculatedDistance, distanceToPressureArray, pressureArray);
-                }
+                }*/
             }
             
             if (shootStick.isAPushed()){
@@ -214,6 +215,7 @@ public class RobotTemplate extends SimpleRobot {
             if (shootStick.isStartPushed()){
                 if (!launcher.isExtended && pickup.pickupPot.getVoltage() <= safeZoneForShooting){
                     launcher.extend();
+                    
                 } else {
                     launcher.returnCatapultToHome();
                 }
@@ -222,21 +224,21 @@ public class RobotTemplate extends SimpleRobot {
             /*****************
              * Miscellaneous *
              *****************/
-            pickup.goToPos(.5); 
-            //launcher.runAirCompressor();
-            
+            //pickup.goToPos(.5); 
+            //launcher.runAirCompressor();  
+            /*SmartDashboard.putNumber("Pressure PSI", launcher.pressureInCylinder());
             SmartDashboard.putBoolean("isConnected: ", socket.isConnected);
             SmartDashboard.putNumber("Distance", socket.pixelDistanceDouble);
             SmartDashboard.putBoolean("Is HOT", socket.isHot);
             SmartDashboard.putBoolean("isDistanceValid", socket.isDistanceValid);
             SmartDashboard.putBoolean("Pressure", compressor.getPressureSwitchValue());
-            
+            */
             dsLCD.updateLCD();
             driveStick.clearButtons();
             shootStick.clearButtons();
         }
-        socket.sendChar('c');
-        socket.disconnect();
+        //socket.sendChar('c');
+        //socket.disconnect();
         compressor.stop();
         hasLocked = false;
         //compressor.free();
@@ -261,7 +263,7 @@ public class RobotTemplate extends SimpleRobot {
             //launcher.runAirCompressor();
             compressor.start();
             liveWindow.setEnabled(false);
-            if(driveStick.isAPushed()){
+            /*if(driveStick.isAPushed()){
                 launcher.targetPressure += 5;
             } else if(driveStick.isBPushed()){
                 launcher.targetPressure -= 5;
@@ -276,29 +278,29 @@ public class RobotTemplate extends SimpleRobot {
             } else {
                 //launcher.holdPressure();
                 //launcher.retractingSolenoidL.set(false);
-            }
-            /*
+            }*/
+            
             if(driveStick.isAHeld()){
                 launcher.addPressure();
             } else if(driveStick.isBHeld()){
                 launcher.exhaustPressure();
-            } else if(driveStick.isYHeld()){
+            } else if(driveStick.isYPushed()){
                 launcher.shoot();//aka fire
-            } else if(driveStick.isStartHeld()){
-                launcher.retractShootingPistons();
+            } else if(driveStick.isXPushed()){
+                launcher.returnCatapultToHome();
             } else {
                 launcher.holdPressure();
-                launcher.retractingSolenoidL.set(false);//if nothing then don't retract
+                //if nothing then don't retract
             }
-            */
+            
 
-            /*if(driveStick.isXPushed()){
+            if(driveStick.isStartPushed()){
                 launcher.lockShootingPistons();
-            }*/
+            }
 
             if(driveStick.isBackPushed()){
                 //launcher.retractShootingPistons();//aka get ready to shoot again
-                launcher.doNothingLockingPistons();
+                launcher.unlockShootingPistons();
             }
             
             if(shootStick.isRBPushed()){
@@ -318,7 +320,7 @@ public class RobotTemplate extends SimpleRobot {
             analogInput = launcher.pressureSensor.getVoltage();
             pickup.actuateTalon.set(shootStick.getRawAxis(LY) * .5);
             
-            SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
+            //SmartDashboard.putNumber("Target Pressure", launcher.targetPressure);
             SmartDashboard.putNumber("Robot Time:", robotTimer.get());
             SmartDashboard.putNumber("Pressure PSI", currentPressurePSI);
             SmartDashboard.putNumber("Pressure Voltage", analogInput);

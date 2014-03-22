@@ -37,7 +37,7 @@ public class Drive {
                 math.pow(deadband.zero(-(driveLX), .1), 3)*speed,
                 math.pow(deadband.zero(-(driveRX), .1), 3)*speed,
                 math.pow(deadband.zero(-(driveLY), .1), 3)*speed, 0);
-        SmartDashboard.putNumber("DriveLX", driveLX);
+        //SmartDashboard.putNumber("DriveLX", driveLX);
         mechanum.setSafetyEnabled(false);
     }
     /**
