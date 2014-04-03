@@ -64,11 +64,14 @@ public class RobotTemplate extends SimpleRobot {
     
 
     public void autonomous() {
+        if (isAutonomous() && isDisabled()){
+            socket.connect();
+        }
         socket.isDisabled = false;
         launcher.isDisabled = false;
         pickup.isDisabled = false;
         compressor.start();
-        socket.connect();
+        
         socket.globalVariableUpdateAndListener();
         pickup.targetPos = pickup.minVoltage;
         //pickup.goToPos(.5);
@@ -80,9 +83,7 @@ public class RobotTemplate extends SimpleRobot {
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
-        if (socket.isHot){
-            isHotInit = true;
-        }
+
         
         pickup.targetPos = pickup.pickupVoltage;
         pickup.goToPos(.5); 
@@ -102,6 +103,12 @@ public class RobotTemplate extends SimpleRobot {
             ex.printStackTrace();
         }
         drive.drive(0,0,0);
+        
+        if (socket.isHot){
+            isHotInit = true;
+        }
+        
+        System.out.println("isHotInit: " + isHotInit);
         
         if (isHotInit){
             launcher.shoot();
