@@ -26,8 +26,8 @@ public class Pickup {
     
     DoubleSolenoid ballGrabberSolenoid = new DoubleSolenoid(2, 2, 3);
     
-    double maxVoltage = 4.82;
-    double minVoltage = 0.8;
+    double maxVoltage = 3.29;
+    double minVoltage = 4.01;
     double pickupVoltage = minVoltage;
     double dropoffVoltage = maxVoltage;
     final double angleTolerance = .1;
@@ -35,6 +35,8 @@ public class Pickup {
     static boolean isAtPosition = false;
     double targetPos = getPickupPos();
     boolean isGoToRunning = false;
+    
+    static boolean isDisabled = true;
     /**
      * Method to close pickup up arms and grab ball
      */
@@ -63,10 +65,20 @@ public class Pickup {
             public void run() {
                 isGoToRunning = true;
                 isAtPosition = false;
-                while (deadband.zero(Math.abs(getPickupPos() - targetPos), angleTolerance, 1)){
+                while (deadband.zero(Math.abs(getPickupPos() - targetPos), angleTolerance, 1) && !isDisabled){
                         
-                    System.out.println(getPickupPos());
+                    //System.out.println("Telling to move");
                     goToAngle(targetPos, getPickupPos(), speed);
+                    
+                    if (isDisabled){
+                        break;
+                    }
+                    try {
+                        Thread.sleep(1L);
+                        //System.out.println("isDisabled" + isDisabled);
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
                     
                 }
                 actuateTalon.set(0);
@@ -96,12 +108,16 @@ public class Pickup {
      */
     private void goToAngle(double target, double currentPos, double speed){
         //System.out.println(deadband.zero(Math.abs(target-currentPos), 5, 1));
-        if (Math.abs(target-currentPos) <= .1) {//changed angletolerance to 5
+        //System.out.println("Called to move");
+        if (Math.abs(target-currentPos) <= .07) {//changed angletolerance to 5
+            //System.out.println("Not Moving");
             actuateTalon.set(0);
-        } else if (target < currentPos){
-            actuateTalon.set(speed);
-        } else if (target > currentPos){
+        } else if (target < currentPos && target < minVoltage){
+            //System.out.println("Moving");
             actuateTalon.set(-speed);
+        } else if (target > currentPos && target > maxVoltage){
+            //System.out.println("Moving");
+            actuateTalon.set(speed);
         } 
     }
     /***
@@ -124,7 +140,7 @@ public class Pickup {
      * @return returns target speed
      */
     public double moveAccordingToJoystick(double joystickInput){
-        double joystickPos = targetPos + deadband.zero(joystickInput, .1);
+        double joystickPos = targetPos + (deadband.zero(joystickInput, .1)*.01);
         return joystickPos;
     }
 }

@@ -44,6 +44,7 @@ public class PiSocket {
     String rawData;
     boolean isDistanceExpected = false;
     boolean isConnectThreadRunning = false;
+    static boolean isDisabled = true;
 
     /**
      * Method to connect to socket server and initialize IO streams
@@ -69,6 +70,8 @@ public class PiSocket {
                 } catch (IOException ex){
                     //ex.printStackTrace();
                 }
+                
+
             isConnectThreadRunning = false;
             }
         });
@@ -81,6 +84,7 @@ public class PiSocket {
      */
     public void isConnected(){
         try {
+            Thread.sleep(1L);
             os.write('\n');
             isConnected = true;
         } catch (Exception ex){
@@ -110,10 +114,13 @@ public class PiSocket {
      */
     public void sendChar(char message) {
         try {
+            Thread.sleep(1L);
             os.flush();
             os.write(message);
             //System.out.println("Message: " + message);
         } catch (IOException ex) {
+            //ex.printStackTrace();
+        } catch (InterruptedException ex) {
             //ex.printStackTrace();
         }
 
@@ -165,7 +172,7 @@ public class PiSocket {
         Thread thread = new Thread(new Runnable(){
             public void run() {
                 isUpdaterThreadRunning = true;
-                while (!isShutdownRequested){
+                while (!isDisabled){
                     isConnected();
                     if (isConnected){
                         try {
@@ -191,8 +198,8 @@ public class PiSocket {
                     }
                 
                 }   
-                sendChar('c');
-                disconnect();
+                //sendChar('c');
+                //disconnect();
                 isUpdaterThreadRunning = false;
             }
         });

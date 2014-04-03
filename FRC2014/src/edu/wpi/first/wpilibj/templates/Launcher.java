@@ -33,6 +33,8 @@ public class Launcher {
     Solenoid retractingSolenoidL = new Solenoid(1, 3);
     Solenoid retractingSolenoidR = new Solenoid(1, 7);
     
+    
+    
     AnalogChannel pressureSensor;
     //DigitalInput pressureSwitch = new DigitalInput(2);
     
@@ -58,6 +60,8 @@ public class Launcher {
     boolean isReturningThreadRunning = false;
     boolean extendThreadFlag = false;
     boolean isExtended = false;
+    
+    static boolean isDisabled = true;
     /**
      * Constructor that is here for no reason but we will not remove it. ITS BLACK MAGIC
      */
@@ -104,7 +108,7 @@ public class Launcher {
             public void run() {
                 extendThreadFlag = true;
                 double timeWhenStarted = launcherTimer.get();
-                while((launcherTimer.get() - timeWhenStarted) <= 1){
+                while((launcherTimer.get() - timeWhenStarted) <= 1 && !isDisabled){
                     try {
                         Thread.sleep(1L);
                     } catch (InterruptedException ex) {
@@ -132,7 +136,7 @@ public class Launcher {
             public void run() {
                 isShootThreadRunning = true;
                 double timeWhenStarted = launcherTimer.get();
-                while((launcherTimer.get() - timeWhenStarted) <= 1){
+                while((launcherTimer.get() - timeWhenStarted) <= 1 && !isDisabled){
                     try {
                         Thread.sleep(1L);
                     } catch (InterruptedException ex) {
@@ -163,7 +167,7 @@ public class Launcher {
             public void run() {
                 isReturningThreadRunning = true;
                 double timeWhenStarted = launcherTimer.get();
-                while((launcherTimer.get() - timeWhenStarted) <= 5){
+                while((launcherTimer.get() - timeWhenStarted) <= 5 && !isDisabled){
                     try {
                         Thread.sleep(1L);
                     } catch (InterruptedException ex) {
@@ -191,7 +195,7 @@ public class Launcher {
                 lockShootingPistons();
                 if(targetPressure != 0){
                     currentPressure = pressureInCylinder();
-                    while (targetPressure < currentPressure) {
+                    while (targetPressure < currentPressure && !isDisabled) {
                         currentPressure = pressureInCylinder();
                         exhaustPressure();
                             try{
@@ -199,12 +203,12 @@ public class Launcher {
                             } catch (Exception e){
                                 //do nothing
                             }
-                        if(hasShot){
+                        if(hasShot || isDisabled){
                             break;
                         }
                     }
                     holdPressure();
-                    while (targetPressure > currentPressure) {
+                    while (targetPressure > currentPressure && !isDisabled) {
                         currentPressure = pressureInCylinder(); 
                         addPressure();
                             try{
@@ -212,22 +216,26 @@ public class Launcher {
                             } catch (Exception e){
                                 //do nothing
                             }
-                        if(hasShot){
+                        if(hasShot || isDisabled){
                             break;
                         }
                     }
                     holdPressure();
-                    while(!hasShot){
+                    while(!hasShot && !isDisabled){
                         currentPressure = pressureInCylinder();
-                        while((pressureInCylinder() - targetPressure) >= 2){
+                        while((pressureInCylinder() - targetPressure) >= 2 && !isDisabled){
                             exhaustPressure();
                             try{
                                 Thread.sleep(1);
                             } catch (Exception e){
                                 //do nothing
                             }
+                            
+                            if (isDisabled){
+                                break;
+                            }
                         }                        
-                        while ((targetPressure - pressureInCylinder()) >= 2){
+                        while ((targetPressure - pressureInCylinder()) >= 2 && !isDisabled){
                             addPressure();
                             try{
                                 Thread.sleep(1);
@@ -240,6 +248,10 @@ public class Launcher {
                             Thread.sleep(5);
                         } catch(Exception x){
                             //do nothing
+                        }
+                        
+                        if (isDisabled){
+                            break;
                         }
                     }
                     holdPressure();
