@@ -78,52 +78,57 @@ public class RobotTemplate extends SimpleRobot {
         launcher.lockShootingPistons();
         //launcher.targetPressure = 55;
         launcher.chargeShootingPistons(55);
-        try {
-            Thread.sleep(1000L);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
-
+        pickup.grabBall();
         
-        pickup.targetPos = pickup.pickupVoltage;
-        pickup.goToPos(.5); 
-        try {
-            Thread.sleep(1000L);
-        } catch (InterruptedException ex) {
-            ex.printStackTrace();
-        }
+ 
 
+        //pickup.targetPos = pickup.pickupVoltage; moved this lower, so that we move the arms after we move forward
+        //pickup.goToPos(.5);
         
 
 
-        drive.drive(0,.4488,-.75);
+        drive.drive(0,.3,-.75); //currently turns .4488 right
         try {
-            Thread.sleep(2500L);
+            Thread.sleep(3550L);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
         drive.drive(0,0,0);
-        
-        if (socket.isHot){
-            isHotInit = true;
+        try{
+            Thread.sleep(500L);//wait 3/4 of a second for ball to rest after we move
+        } catch(Exception x){
+            
         }
         
-        System.out.println("isHotInit: " + isHotInit);
-        
-        if (isHotInit){
-            launcher.shoot();
-        }
+        pickup.releaseBall();
+        pickup.targetPos = 3.8;
+        pickup.goToPos(.5);
         try {
-            Thread.sleep(3000L);
+            Thread.sleep(1000L);
         } catch (InterruptedException ex) {
             ex.printStackTrace();
         }
         
-        if (!isHotInit){
-            launcher.shoot();
+        pickup.grabBall();
+        pickup.targetPos = pickup.dropoffVoltage;
+        pickup.goToPos(.5);
+        
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
         }
         
-        //launcher.shoot();
+        pickup.targetPos = pickup.pickupVoltage;
+        pickup.goToPos(.5);
+        
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException ex) {
+            ex.printStackTrace();
+        }
+
+        launcher.shoot();
         compressor.stop();
     }
 

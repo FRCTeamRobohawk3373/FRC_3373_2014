@@ -107,6 +107,11 @@ public class Launcher {
         final Thread thread = new Thread(new Runnable() {
             public void run() {
                 extendThreadFlag = true;
+                /*try{
+                    Thread.sleep(300);
+                } catch(Exception e){
+                    //do nothing
+                }*/
                 double timeWhenStarted = launcherTimer.get();
                 while((launcherTimer.get() - timeWhenStarted) <= 1 && !isDisabled){
                     try {
